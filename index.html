@@ -1,1 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Motion Graph Playground</title>
+
+<style>
+body {
+    font-family: "Source Sans 3", "Source Sans Pro", "Helvetica Neue", sans-serif;
+    color: #544948;
+    background: #FFFBF5;
+    margin: 0;
+    padding: 28px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+h1 {
+    color: #8C1515;
+    margin: 0 0 4px;
+    font-size: 32px;
+}
+
+.subtitle {
+    color: #6f6664;
+    margin-bottom: 24px;
+    font-size: 17px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #DAD7CB;
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: center;
+}
+
+label {
+    font-weight: 600;
+}
+
+input {
+    width: 72px;
+    padding: 7px;
+    margin-left: 5px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.buttons {
+    margin-top: 18px;
+}
+
+button {
+    background: #8C1515;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 20px;
+    margin-right: 8px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #6f1010;
+}
+
+#track {
+    position: relative;
+    height: 90px;
+    border-bottom: 3px solid #544948;
+    overflow: hidden;
+}
+
+#cart {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 50px;
+    height: 32px;
+    background: #016895;
+    border-radius: 5px;
+}
+
+.wheel {
+    position: absolute;
+    bottom: -7px;
+    width: 12px;
+    height: 12px;
+    background: #544948;
+    border-radius: 50%;
+}
+
+.wheel.left {
+    left: 7px;
+}
+
+.wheel.right {
+    right: 7px;
+}
+
+.readout {
+    margin-top: 18px;
+    font-size: 16px;
+}
+
+.graph-title {
+    color: #175E54;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+canvas {
+    width: 100%;
+    height: 180px;
+    display: block;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Motion Graph Playground</h1>
+
+<div class="subtitle">
+Change the initial conditions. Predict the motion. Then run the model.
+</div>
+
+<div class="card">
+
+<div class="controls">
+
+<label>
+Initial position
+<input id="x0" type="number" value="0" step="1">
+m
+</label>
+
+<label>
+Initial velocity
+<input id="v0" type="number" value="2" step="0.5">
+m/s
+</label>
+
+<label>
+Acceleration
+<input id="a" type="number" value="1" step="0.5">
+m/s²
+</label>
+
+</div>
+
+<div class="buttons">
+<button onclick="startSimulation()">Start</button>
+<button onclick="pauseSimulation()">Pause</button>
+<button onclick="resetSimulation()">Reset</button>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div id="track">
+
+<div id="cart">
+    <div class="wheel left"></div>
+    <div class="wheel right"></div>
+</div>
+
+</div>
+
+<div class="readout">
+<strong>Time:</strong>
+<span id="time">0.00</span> s
+&nbsp;&nbsp;&nbsp;
+
+<strong>Position:</strong>
+<span id="position">0.00</span> m
+&nbsp;&nbsp;&nbsp;
+
+<strong>Velocity:</strong>
+<span id="velocity">0.00</span> m/s
+</div>
+
+</div>
+
+
+<div class="card">
+<div class="graph-title">Position vs. Time</div>
+<canvas id="xGraph"></canvas>
+</div>
+
+
+<div class="card">
+<div class="graph-title">Velocity vs. Time</div>
+<canvas id="vGraph"></canvas>
+</div>
+
+
+<div class="card">
+<div class="graph-title">Acceleration vs. Time</div>
+<canvas id="aGraph"></canvas>
+</div>
+
+</div>
+
+
+<script>
+
+let running = false;
+let startTime = 0;
+let elapsed = 0;
+
+let times = [];
+let positions = [];
+let velocities = [];
+let accelerations = [];
+
+
+function startSimulation() {
+
+    if (running) return;
+
+    running = true;
+
+    startTime = performance.now() - elapsed * 1000;
+
+    requestAnimationFrame(update);
+}
+
+
+function pauseSimulation() {
+    running = false;
+}
+
+
+function resetSimulation() {
+
+    running = false;
+    elapsed = 0;
+
+    times = [];
+    positions = [];
+    velocities = [];
+    accelerations = [];
+
+    document.getElementById("time").textContent = "0.00";
+    document.getElementById("position").textContent = "0.00";
+    document.getElementById("velocity").textContent = "0.00";
+
+    document.getElementById("cart").style.left = "0px";
+
+    drawAllGraphs();
+}
+
+
+function update(now) {
+
+    if (!running) return;
+
+    elapsed = (now - startTime) / 1000;
+
+    const x0 = Number(document.getElementById("x0").value);
+    const v0 = Number(document.getElementById("v0").value);
+    const a = Number(document.getElementById("a").value);
+
+    const x =
+        x0 +
+        v0 * elapsed +
+        0.5 * a * elapsed * elapsed;
+
+    const v =
+        v0 +
+        a * elapsed;
+
+    document.getElementById("time").textContent =
+        elapsed.toFixed(2);
+
+    document.getElementById("position").textContent =
+        x.toFixed(2);
+
+    document.getElementById("velocity").textContent =
+        v.toFixed(2);
+
+    moveCart(x);
+
+    times.push(elapsed);
+    positions.push(x);
+    velocities.push(v);
+    accelerations.push(a);
+
+    drawAllGraphs();
+
+    if (elapsed < 10) {
+        requestAnimationFrame(update);
+    } else {
+        running = false;
+    }
+}
+
+
+function moveCart(x) {
+
+    const track = document.getElementById("track");
+    const cart = document.getElementById("cart");
+
+    const usableWidth = track.clientWidth - 50;
+
+    /*
+       Display range for the cart:
+       -20 m to +40 m
+    */
+
+    let fraction = (x + 20) / 60;
+
+    fraction = Math.max(0, Math.min(1, fraction));
+
+    cart.style.left =
+        (fraction * usableWidth) + "px";
+}
+
+
+function drawGraph(canvasID, data) {
+
+    const canvas = document.getElementById(canvasID);
+    const ctx = canvas.getContext("2d");
+
+    const ratio = window.devicePixelRatio || 1;
+
+    canvas.width = canvas.clientWidth * ratio;
+    canvas.height = canvas.clientHeight * ratio;
+
+    ctx.scale(ratio, ratio);
+
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+
+    ctx.clearRect(0, 0, w, h);
+
+    const left = 48;
+    const right = 12;
+    const top = 12;
+    const bottom = 30;
+
+    /*
+       Find graph range.
+    */
+
+    let minY = 0;
+    let maxY = 1;
+
+    if (data.length > 0) {
+        minY = Math.min(0, ...data);
+        maxY = Math.max(0, ...data);
+    }
+
+    if (maxY === minY) {
+        maxY += 1;
+        minY -= 1;
+    }
+
+    const padding = (maxY - minY) * 0.08;
+
+    maxY += padding;
+    minY -= padding;
+
+    const maxT = 10;
+
+
+    function px(t) {
+
+        return left +
+            (t / maxT) *
+            (w - left - right);
+    }
+
+
+    function py(y) {
+
+        return top +
+            ((maxY - y) / (maxY - minY)) *
+            (h - top - bottom);
+    }
+
+
+    /*
+       Axes
+    */
+
+    ctx.strokeStyle = "#aaa";
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+
+    ctx.moveTo(left, top);
+    ctx.lineTo(left, h - bottom);
+
+    ctx.lineTo(w - right, h - bottom);
+
+    ctx.stroke();
+
+
+    /*
+       Zero line
+    */
+
+    if (minY <= 0 && maxY >= 0) {
+
+        ctx.strokeStyle = "#ddd";
+
+        ctx.beginPath();
+
+        ctx.moveTo(left, py(0));
+        ctx.lineTo(w - right, py(0));
+
+        ctx.stroke();
+    }
+
+
+    /*
+       Data
+    */
+
+    if (data.length > 1) {
+
+        ctx.strokeStyle = "#016895";
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            px(times[0]),
+            py(data[0])
+        );
+
+        for (let i = 1; i < data.length; i++) {
+
+            ctx.lineTo(
+                px(times[i]),
+                py(data[i])
+            );
+        }
+
+        ctx.stroke();
+    }
+
+
+    /*
+       Labels
+    */
+
+    ctx.fillStyle = "#544948";
+    ctx.font = "12px Source Sans 3, sans-serif";
+
+    ctx.fillText("0", left - 12, h - 10);
+    ctx.fillText("10 s", w - 38, h - 10);
+
+    ctx.fillText(
+        maxY.toFixed(1),
+        4,
+        top + 5
+    );
+
+    ctx.fillText(
+        minY.toFixed(1),
+        4,
+        h - bottom
+    );
+}
+
+
+function drawAllGraphs() {
+
+    drawGraph(
+        "xGraph",
+        positions
+    );
+
+    drawGraph(
+        "vGraph",
+        velocities
+    );
+
+    drawGraph(
+        "aGraph",
+        accelerations
+    );
+}
+
+
+drawAllGraphs();
+
+window.addEventListener(
+    "resize",
+    drawAllGraphs
+);
+
+</script>
+
+</body>
+</html>
