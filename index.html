@@ -3,516 +3,248 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Motion Graph Playground</title>
-
+<title>Physics Playground — Kinematics</title>
 <style>
-body {
-    font-family: "Source Sans 3", "Source Sans Pro", "Helvetica Neue", sans-serif;
-    color: #544948;
-    background: #FFFBF5;
-    margin: 0;
-    padding: 28px;
-}
-
-.container {
-    max-width: 900px;
-    margin: auto;
-}
-
-h1 {
-    color: #8C1515;
-    margin: 0 0 4px;
-    font-size: 32px;
-}
-
-.subtitle {
-    color: #6f6664;
-    margin-bottom: 24px;
-    font-size: 17px;
-}
-
-.card {
-    background: white;
-    border: 1px solid #DAD7CB;
-    border-radius: 18px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    align-items: center;
-}
-
-label {
-    font-weight: 600;
-}
-
-input {
-    width: 72px;
-    padding: 7px;
-    margin-left: 5px;
-    border: 1px solid #bbb;
-    border-radius: 6px;
-    font-size: 15px;
-}
-
-.buttons {
-    margin-top: 18px;
-}
-
-button {
-    background: #8C1515;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 9px 20px;
-    margin-right: 8px;
-    font-size: 15px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #6f1010;
-}
-
-#track {
-    position: relative;
-    height: 90px;
-    border-bottom: 3px solid #544948;
-    overflow: hidden;
-}
-
-#cart {
-    position: absolute;
-    bottom: 5px;
-    left: 0;
-    width: 50px;
-    height: 32px;
-    background: #016895;
-    border-radius: 5px;
-}
-
-.wheel {
-    position: absolute;
-    bottom: -7px;
-    width: 12px;
-    height: 12px;
-    background: #544948;
-    border-radius: 50%;
-}
-
-.wheel.left {
-    left: 7px;
-}
-
-.wheel.right {
-    right: 7px;
-}
-
-.readout {
-    margin-top: 18px;
-    font-size: 16px;
-}
-
-.graph-title {
-    color: #175E54;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-canvas {
-    width: 100%;
-    height: 180px;
-    display: block;
-}
+:root{--cardinal:#8C1515;--blue:#016895;--green:#175E54;--cream:#FFFBF5;--ink:#544948;--line:#DAD7CB;--pblue:#E6F2F8;--pgreen:#E7F2EF}
+*{box-sizing:border-box} body{margin:0;background:#f7f5f1;color:var(--ink);font-family:"Source Sans 3","Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;line-height:1.4}
+.shell{max-width:1120px;margin:22px auto;padding:0 18px 44px}.hero{background:linear-gradient(120deg,#8C1515,#BE3A4B);color:white;border-radius:22px;padding:22px 28px}
+.hero h1{margin:0;font-size:30px}.hero p{margin:5px 0 0;opacity:.9}.tabs,.subtabs{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 0}
+button,select,input{font:inherit}.tab,.pill,.action{border:1px solid var(--line);background:white;color:var(--ink);border-radius:999px;padding:9px 15px;cursor:pointer;font-weight:700}
+.tab.active,.pill.active{background:var(--blue);border-color:var(--blue);color:white}.action.primary{background:var(--green);color:white;border-color:var(--green)}.action:disabled{opacity:.45;cursor:not-allowed}
+.workspace{background:var(--cream);border-radius:24px;padding:22px;margin-top:16px}.grid{display:grid;grid-template-columns:300px 1fr;gap:18px}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:18px}
+h2,h3{margin:0 0 12px} h2{color:var(--cardinal)} h3{font-size:18px;color:var(--green)}
+.control{margin:0 0 13px}.control label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}.control input,.control select{width:100%;padding:9px 10px;border:1px solid #bbb5ad;border-radius:9px;background:white}
+.object-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.object{border:1px solid var(--line);border-radius:13px;background:white;padding:8px 4px;text-align:center;cursor:pointer}.object.active{outline:3px solid #b8dce9;background:var(--pblue)}.object .icon{height:45px;display:flex;align-items:center;justify-content:center}.object small{display:block;font-weight:700}
+.mouse-art{font-size:29px}.elephant-art{font-size:41px}.cart-art{width:52px;height:23px;border:3px solid #6c6865;border-radius:4px;position:relative;background:#eef1f2}.cart-art:before,.cart-art:after{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:#555;bottom:-9px}.cart-art:before{left:5px}.cart-art:after{right:5px}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.note{font-size:13px;background:var(--pblue);border-left:4px solid var(--blue);padding:10px 11px;border-radius:8px;margin-top:12px}.warning{background:#fff3e7;border-left-color:#b85c00}
+.stage-wrap{position:relative}.stage{width:100%;height:430px;display:block;border-radius:14px;background:#fff;border:1px solid var(--line);touch-action:none}.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:12px;margin-top:8px}.key{display:inline-flex;align-items:center;gap:5px}.sw{width:18px;height:3px;background:#016895}.sw.acc{background:#8C1515}.sw.comp{background:#175E54}
+.readouts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.readout{background:#f8f7f4;border-radius:10px;padding:8px;text-align:center}.readout b{display:block;font-size:12px;color:#746b68}.readout span{font-size:17px;font-variant-numeric:tabular-nums}
+.toggle{display:flex;align-items:center;gap:8px;margin:10px 0;font-weight:700;font-size:14px}.toggle input{width:auto}
+.graphs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.graph-card{background:white;border:1px solid var(--line);border-radius:16px;padding:10px}.graph-card h4{margin:0 0 5px;font-size:14px}.graph{width:100%;height:190px;display:block}
+.hidden{display:none!important}.footer{font-size:12px;color:#7d7572;text-align:center;margin-top:14px}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.graphs{grid-template-columns:1fr}.stage{height:390px}} @media(max-width:520px){.readouts{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
-
 <body>
+<div class="shell">
+  <header class="hero"><h1>Physics Playground</h1><p>Kinematics • Wonder → Investigate → Understand</p></header>
+  <div class="tabs"><button class="tab active">Kinematics</button></div>
+  <main class="workspace">
+    <h2>Kinematics</h2>
+    <div class="subtabs">
+      <button class="pill active" data-mode="1d">1-D Motion</button>
+      <button class="pill" data-mode="2d">2-D Motion</button>
+      <button class="pill" data-mode="circular">Circular Motion</button>
+    </div>
+    <div id="oneDChoice" class="subtabs" style="margin-top:10px">
+      <button class="pill active" data-one="horizontal">Horizontal</button>
+      <button class="pill" data-one="vertical">Vertical</button>
+    </div>
 
-<div class="container">
+    <div class="grid" style="margin-top:16px">
+      <aside class="card">
+        <h3>Set up the motion</h3>
+        <div class="control">
+          <label>Choose an object</label>
+          <div class="object-row">
+            <button class="object" data-object="mouse"><span class="icon mouse-art">🐭🎩</span><small>Mouse</small></button>
+            <button class="object active" data-object="cart"><span class="icon"><span class="cart-art"></span></span><small>Cart</small></button>
+            <button class="object" data-object="elephant"><span class="icon elephant-art">🐘🎩</span><small>Elephant</small></button>
+          </div>
+        </div>
 
-<h1>Motion Graph Playground</h1>
+        <div id="gravityBox" class="control hidden"><label for="world">Location</label>
+          <select id="world">
+            <option value="9.81">Earth</option><option value="1.62">Moon</option><option value="3.71">Mars</option>
+            <option value="24.79">Jupiter</option><option value="11.15">Neptune</option><option value="274">Sun</option>
+            <option value="190">Sirius A</option><option value="blackhole">Black Hole</option>
+          </select>
+        </div>
+        <div id="gravityRead" class="note hidden"></div>
 
-<div class="subtitle">
-Change the initial conditions. Predict the motion. Then run the model.
+        <div id="controls1d">
+          <div class="control"><label id="p0label">Initial position x₀ (m)</label><input id="p0" type="number" value="0" step="1"></div>
+          <div class="control"><label id="v0label">Initial velocity v₀ (m/s)</label><input id="v0" type="number" value="8" step="1"></div>
+          <div class="control" id="aControl"><label>Acceleration a (m/s²)</label><input id="accel" type="number" value="1" step=".5"></div>
+        </div>
+
+        <div id="controls2d" class="hidden">
+          <div class="control"><label>Initial x (m)</label><input id="x02" type="number" value="0" step="1"></div>
+          <div class="control"><label>Initial y (m)</label><input id="y02" type="number" value="5" min="0" step="1"></div>
+          <div class="control"><label>Initial speed (m/s)</label><input id="speed2" type="number" value="18" min="0" step="1"></div>
+          <div class="control"><label>Launch angle θ (degrees)</label><input id="angle2" type="number" value="55" step="1"></div>
+        </div>
+
+        <div id="controlsCircular" class="hidden">
+          <div class="control"><label>Radius r (m)</label><input id="radiusC" type="number" value="8" min="1" step="1"></div>
+          <div class="control"><label>Speed (m/s)</label><input id="speedC" type="number" value="6" min="0" step=".5"></div>
+        </div>
+
+        <label id="componentsToggle" class="toggle hidden"><input id="showComponents" type="checkbox"> Show components</label>
+        <div class="actions"><button id="start" class="action primary">Start</button><button id="pause" class="action">Pause</button><button id="reset" class="action">Reset</button></div>
+        <div class="note">You can drag the object to change its starting position before you press Start.</div>
+      </aside>
+
+      <section class="card stage-wrap">
+        <canvas id="stage" class="stage"></canvas>
+        <div class="legend"><span class="key"><span class="sw"></span> velocity</span><span class="key"><span class="sw acc"></span> acceleration</span><span class="key"><span class="sw comp"></span> components</span></div>
+        <div class="readouts">
+          <div class="readout"><b>time</b><span id="rt">0.00 s</span></div>
+          <div class="readout"><b id="rpLab">position</b><span id="rp">0.00 m</span></div>
+          <div class="readout"><b id="rvLab">velocity</b><span id="rv">0.00 m/s</span></div>
+          <div class="readout"><b id="raLab">acceleration</b><span id="ra">0.00 m/s²</span></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="graphs">
+      <div class="graph-card"><h4 id="g1title">Position vs. time</h4><canvas id="g1" class="graph"></canvas></div>
+      <div class="graph-card"><h4 id="g2title">Velocity vs. time</h4><canvas id="g2" class="graph"></canvas></div>
+      <div class="graph-card"><h4 id="g3title">Acceleration vs. time</h4><canvas id="g3" class="graph"></canvas></div>
+    </div>
+    <div class="footer">Simple models are useful. Their limits matter too.</div>
+  </main>
 </div>
-
-<div class="card">
-
-<div class="controls">
-
-<label>
-Initial position
-<input id="x0" type="number" value="0" step="1">
-m
-</label>
-
-<label>
-Initial velocity
-<input id="v0" type="number" value="2" step="0.5">
-m/s
-</label>
-
-<label>
-Acceleration
-<input id="a" type="number" value="1" step="0.5">
-m/s²
-</label>
-
-</div>
-
-<div class="buttons">
-<button onclick="startSimulation()">Start</button>
-<button onclick="pauseSimulation()">Pause</button>
-<button onclick="resetSimulation()">Reset</button>
-</div>
-
-</div>
-
-
-<div class="card">
-
-<div id="track">
-
-<div id="cart">
-    <div class="wheel left"></div>
-    <div class="wheel right"></div>
-</div>
-
-</div>
-
-<div class="readout">
-<strong>Time:</strong>
-<span id="time">0.00</span> s
-&nbsp;&nbsp;&nbsp;
-
-<strong>Position:</strong>
-<span id="position">0.00</span> m
-&nbsp;&nbsp;&nbsp;
-
-<strong>Velocity:</strong>
-<span id="velocity">0.00</span> m/s
-</div>
-
-</div>
-
-
-<div class="card">
-<div class="graph-title">Position vs. Time</div>
-<canvas id="xGraph"></canvas>
-</div>
-
-
-<div class="card">
-<div class="graph-title">Velocity vs. Time</div>
-<canvas id="vGraph"></canvas>
-</div>
-
-
-<div class="card">
-<div class="graph-title">Acceleration vs. Time</div>
-<canvas id="aGraph"></canvas>
-</div>
-
-</div>
-
-
 <script>
+const $=id=>document.getElementById(id);
+const stage=$('stage'), ctx=stage.getContext('2d');
+const state={mode:'1d',one:'horizontal',object:'cart',running:false,t:0,last:0,x:0,y:0,vx:0,vy:0,ax:0,ay:0,data:[],trail:[],drag:false};
+const worlds={};
+function worldG(){return $('world').value==='blackhole'?null:+$('world').value}
+function resizeCanvas(c){const r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0)}
+function resizeAll(){[stage,$('g1'),$('g2'),$('g3')].forEach(resizeCanvas);draw()}
+window.addEventListener('resize',resizeAll);
 
-let running = false;
-let startTime = 0;
-let elapsed = 0;
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-mode]').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.mode=b.dataset.mode;configure()});
+document.querySelectorAll('[data-one]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-one]').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.one=b.dataset.one;configure()});
+document.querySelectorAll('[data-object]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-object]').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.object=b.dataset.object;reset()});
+['p0','v0','accel','x02','y02','speed2','angle2','radiusC','speedC'].forEach(id=>$(id).addEventListener('change',reset));
+$('world').addEventListener('change',()=>{configureGravity();reset()}); $('showComponents').addEventListener('change',draw);
+$('start').onclick=()=>{if($('world').value==='blackhole' && (state.one==='vertical'||state.mode==='2d'))return;state.running=true;state.last=performance.now();requestAnimationFrame(loop)};
+$('pause').onclick=()=>state.running=false;$('reset').onclick=reset;
 
-let times = [];
-let positions = [];
-let velocities = [];
-let accelerations = [];
-
-
-function startSimulation() {
-
-    if (running) return;
-
-    running = true;
-
-    startTime = performance.now() - elapsed * 1000;
-
-    requestAnimationFrame(update);
+function configure(){
+ state.running=false;
+ $('oneDChoice').classList.toggle('hidden',state.mode!=='1d');
+ $('controls1d').classList.toggle('hidden',state.mode!=='1d');
+ $('controls2d').classList.toggle('hidden',state.mode!=='2d');
+ $('controlsCircular').classList.toggle('hidden',state.mode!=='circular');
+ $('componentsToggle').classList.toggle('hidden',state.mode==='1d');
+ const grav=state.mode==='2d'||(state.mode==='1d'&&state.one==='vertical');
+ $('gravityBox').classList.toggle('hidden',!grav);$('gravityRead').classList.toggle('hidden',!grav);
+ if(state.mode==='1d'){
+   const vert=state.one==='vertical';$('p0label').textContent=vert?'Initial height y₀ (m)':'Initial position x₀ (m)';
+   $('v0label').textContent=vert?'Initial velocity v₀y (m/s)':'Initial velocity v₀ (m/s)';
+   $('aControl').classList.toggle('hidden',vert);$('p0').value=vert?20:0;
+ }
+ configureGravity(); reset();
 }
-
-
-function pauseSimulation() {
-    running = false;
+function configureGravity(){
+ const g=worldG(), grav=state.mode==='2d'||(state.mode==='1d'&&state.one==='vertical');
+ if(!grav)return;
+ if(g===null){$('gravityRead').className='note warning';$('gravityRead').innerHTML='<b>Model limit:</b> a black hole has no solid surface and this constant-g surface model is not appropriate here. Choose another location to run the simulation.';$('start').disabled=true}
+ else{$('gravityRead').className='note';$('gravityRead').innerHTML='Local gravitational acceleration used by this model: <b>g ≈ '+g.toFixed(g>=100?0:2)+' m/s² downward</b>.';$('start').disabled=false}
 }
-
-
-function resetSimulation() {
-
-    running = false;
-    elapsed = 0;
-
-    times = [];
-    positions = [];
-    velocities = [];
-    accelerations = [];
-
-    document.getElementById("time").textContent = "0.00";
-    document.getElementById("position").textContent = "0.00";
-    document.getElementById("velocity").textContent = "0.00";
-
-    document.getElementById("cart").style.left = "0px";
-
-    drawAllGraphs();
+function reset(){
+ state.running=false;state.t=0;state.data=[];state.trail=[];
+ if(state.mode==='1d'){
+   if(state.one==='horizontal'){state.x=+$('p0').value||0;state.y=0;state.vx=+$('v0').value||0;state.vy=0;state.ax=+$('accel').value||0;state.ay=0}
+   else{state.x=0;state.y=Math.max(0,+$('p0').value||0);state.vx=0;state.vy=+$('v0').value||0;state.ax=0;state.ay=-(worldG()||0)}
+ }else if(state.mode==='2d'){
+   const s=+$('speed2').value||0,a=(+$('angle2').value||0)*Math.PI/180;state.x=+$('x02').value||0;state.y=Math.max(0,+$('y02').value||0);state.vx=s*Math.cos(a);state.vy=s*Math.sin(a);state.ax=0;state.ay=-(worldG()||0)
+ }else{const r=Math.max(1,+$('radiusC').value||8),s=+$('speedC').value||0;state.x=r;state.y=0;state.vx=0;state.vy=s;state.ax=-(s*s/r);state.ay=0}
+ record();draw();
 }
-
-
-function update(now) {
-
-    if (!running) return;
-
-    elapsed = (now - startTime) / 1000;
-
-    const x0 = Number(document.getElementById("x0").value);
-    const v0 = Number(document.getElementById("v0").value);
-    const a = Number(document.getElementById("a").value);
-
-    const x =
-        x0 +
-        v0 * elapsed +
-        0.5 * a * elapsed * elapsed;
-
-    const v =
-        v0 +
-        a * elapsed;
-
-    document.getElementById("time").textContent =
-        elapsed.toFixed(2);
-
-    document.getElementById("position").textContent =
-        x.toFixed(2);
-
-    document.getElementById("velocity").textContent =
-        v.toFixed(2);
-
-    moveCart(x);
-
-    times.push(elapsed);
-    positions.push(x);
-    velocities.push(v);
-    accelerations.push(a);
-
-    drawAllGraphs();
-
-    if (elapsed < 10) {
-        requestAnimationFrame(update);
-    } else {
-        running = false;
-    }
+function loop(now){
+ if(!state.running)return;let dt=Math.min(.03,(now-state.last)/1000);state.last=now;state.t+=dt;
+ if(state.mode==='1d'){
+  if(state.one==='horizontal'){state.x+=state.vx*dt+.5*state.ax*dt*dt;state.vx+=state.ax*dt}
+  else{state.y+=state.vy*dt+.5*state.ay*dt*dt;state.vy+=state.ay*dt;if(state.y<=0){state.y=0;state.running=false}}
+ }else if(state.mode==='2d'){
+  state.x+=state.vx*dt;state.y+=state.vy*dt+.5*state.ay*dt*dt;state.vy+=state.ay*dt;if(state.y<=0&&state.t>.03){state.y=0;state.running=false}
+ }else{
+  const r=Math.max(1,+$('radiusC').value||8),s=+$('speedC').value||0,w=s/r,th=w*state.t;state.x=r*Math.cos(th);state.y=r*Math.sin(th);state.vx=-s*Math.sin(th);state.vy=s*Math.cos(th);state.ax=-(s*s/r)*Math.cos(th);state.ay=-(s*s/r)*Math.sin(th)
+ }
+ state.trail.push([state.x,state.y]);if(state.trail.length>900)state.trail.shift();record();draw();if(state.running&&state.t<20)requestAnimationFrame(loop);else state.running=false;
 }
-
-
-function moveCart(x) {
-
-    const track = document.getElementById("track");
-    const cart = document.getElementById("cart");
-
-    const usableWidth = track.clientWidth - 50;
-
-    /*
-       Display range for the cart:
-       -20 m to +40 m
-    */
-
-    let fraction = (x + 20) / 60;
-
-    fraction = Math.max(0, Math.min(1, fraction));
-
-    cart.style.left =
-        (fraction * usableWidth) + "px";
+function record(){state.data.push({t:state.t,x:state.x,y:state.y,vx:state.vx,vy:state.vy,ax:state.ax,ay:state.ay});if(state.data.length>700)state.data.shift()}
+function mapWorld(){
+ const W=stage.clientWidth,H=stage.clientHeight,pad=38;
+ if(state.mode==='1d'&&state.one==='horizontal')return {sx:x=>pad+(x+20)/60*(W-2*pad),sy:y=>H/2};
+ if(state.mode==='circular'){const r=Math.max(1,+$('radiusC').value||8),m=r*1.35;return {sx:x=>W/2+x/(2*m)*(W-2*pad),sy:y=>H/2-y/(2*m)*(H-2*pad)}}
+ let xmax=state.mode==='2d'?Math.max(40,Math.abs(state.x)*1.3):10,ymax=Math.max(40,state.y*1.25,+$('p0').value*1.25||40,+$('y02').value*1.25||40);
+ return {sx:x=>pad+(x)/(xmax)*(W-2*pad),sy:y=>H-pad-y/ymax*(H-2*pad),xmax,ymax};
 }
-
-
-function drawGraph(canvasID, data) {
-
-    const canvas = document.getElementById(canvasID);
-    const ctx = canvas.getContext("2d");
-
-    const ratio = window.devicePixelRatio || 1;
-
-    canvas.width = canvas.clientWidth * ratio;
-    canvas.height = canvas.clientHeight * ratio;
-
-    ctx.scale(ratio, ratio);
-
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-
-    ctx.clearRect(0, 0, w, h);
-
-    const left = 48;
-    const right = 12;
-    const top = 12;
-    const bottom = 30;
-
-    /*
-       Find graph range.
-    */
-
-    let minY = 0;
-    let maxY = 1;
-
-    if (data.length > 0) {
-        minY = Math.min(0, ...data);
-        maxY = Math.max(0, ...data);
-    }
-
-    if (maxY === minY) {
-        maxY += 1;
-        minY -= 1;
-    }
-
-    const padding = (maxY - minY) * 0.08;
-
-    maxY += padding;
-    minY -= padding;
-
-    const maxT = 10;
-
-
-    function px(t) {
-
-        return left +
-            (t / maxT) *
-            (w - left - right);
-    }
-
-
-    function py(y) {
-
-        return top +
-            ((maxY - y) / (maxY - minY)) *
-            (h - top - bottom);
-    }
-
-
-    /*
-       Axes
-    */
-
-    ctx.strokeStyle = "#aaa";
-    ctx.lineWidth = 1;
-
-    ctx.beginPath();
-
-    ctx.moveTo(left, top);
-    ctx.lineTo(left, h - bottom);
-
-    ctx.lineTo(w - right, h - bottom);
-
-    ctx.stroke();
-
-
-    /*
-       Zero line
-    */
-
-    if (minY <= 0 && maxY >= 0) {
-
-        ctx.strokeStyle = "#ddd";
-
-        ctx.beginPath();
-
-        ctx.moveTo(left, py(0));
-        ctx.lineTo(w - right, py(0));
-
-        ctx.stroke();
-    }
-
-
-    /*
-       Data
-    */
-
-    if (data.length > 1) {
-
-        ctx.strokeStyle = "#016895";
-        ctx.lineWidth = 2;
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            px(times[0]),
-            py(data[0])
-        );
-
-        for (let i = 1; i < data.length; i++) {
-
-            ctx.lineTo(
-                px(times[i]),
-                py(data[i])
-            );
-        }
-
-        ctx.stroke();
-    }
-
-
-    /*
-       Labels
-    */
-
-    ctx.fillStyle = "#544948";
-    ctx.font = "12px Source Sans 3, sans-serif";
-
-    ctx.fillText("0", left - 12, h - 10);
-    ctx.fillText("10 s", w - 38, h - 10);
-
-    ctx.fillText(
-        maxY.toFixed(1),
-        4,
-        top + 5
-    );
-
-    ctx.fillText(
-        minY.toFixed(1),
-        4,
-        h - bottom
-    );
+function arrow(x1,y1,x2,y2,color,label){
+ ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+ const a=Math.atan2(y2-y1,x2-x1),s=8;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-s*Math.cos(a-.5),y2-s*Math.sin(a-.5));ctx.lineTo(x2-s*Math.cos(a+.5),y2-s*Math.sin(a+.5));ctx.closePath();ctx.fill();
+ if(label){ctx.font='12px sans-serif';ctx.fillText(label,x2+5,y2-5)}
 }
-
-
-function drawAllGraphs() {
-
-    drawGraph(
-        "xGraph",
-        positions
-    );
-
-    drawGraph(
-        "vGraph",
-        velocities
-    );
-
-    drawGraph(
-        "aGraph",
-        accelerations
-    );
+function drawObject(px,py){
+ ctx.save();ctx.translate(px,py);
+ if(state.object==='cart'){ctx.fillStyle='#eef1f2';ctx.strokeStyle='#5e5b59';ctx.lineWidth=2;ctx.fillRect(-22,-14,44,22);ctx.strokeRect(-22,-14,44,22);ctx.fillStyle='#555';ctx.beginPath();ctx.arc(-13,11,6,0,7);ctx.arc(13,11,6,0,7);ctx.fill()}
+ else if(state.object==='mouse'){ctx.font='31px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🐭',0,0);ctx.font='18px sans-serif';ctx.fillText('🎩',5,-20)}
+ else{ctx.font='47px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🐘',0,0);ctx.font='19px sans-serif';ctx.fillText('🎩',8,-31)}
+ ctx.restore();
 }
-
-
-drawAllGraphs();
-
-window.addEventListener(
-    "resize",
-    drawAllGraphs
-);
-
+function axes(M){
+ const W=stage.clientWidth,H=stage.clientHeight;ctx.strokeStyle='#d6d1ca';ctx.lineWidth=1;ctx.font='11px sans-serif';ctx.fillStyle='#777';
+ if(state.mode==='1d'&&state.one==='horizontal'){let y=H/2;ctx.beginPath();ctx.moveTo(28,y);ctx.lineTo(W-22,y);ctx.stroke();for(let x=-20;x<=40;x+=10){let p=M.sx(x);ctx.beginPath();ctx.moveTo(p,y-5);ctx.lineTo(p,y+5);ctx.stroke();ctx.fillText(x+' m',p-10,y+20)}arrow(W-50,y,W-24,y,'#777','+x')}
+ else{let ox=state.mode==='circular'?W/2:M.sx(0),oy=state.mode==='circular'?H/2:M.sy(0);ctx.beginPath();ctx.moveTo(ox,18);ctx.lineTo(ox,H-25);ctx.moveTo(25,oy);ctx.lineTo(W-20,oy);ctx.stroke();arrow(W-50,oy,W-23,oy,'#777','+x');arrow(ox,48,ox,22,'#777','+y')}
+}
+function draw(){
+ ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight);const M=mapWorld();axes(M);
+ if(state.trail.length>1){ctx.strokeStyle='#9a9590';ctx.lineWidth=1.5;ctx.beginPath();state.trail.forEach((q,i)=>{const X=M.sx(q[0]),Y=M.sy(q[1]);i?ctx.lineTo(X,Y):ctx.moveTo(X,Y)});ctx.stroke()}
+ const px=M.sx(state.x),py=M.sy(state.y);drawObject(px,py);
+ if(state.mode!=='1d'){
+   const scaleV=3.2,scaleA=1.1,comp=$('showComponents').checked;
+   arrow(px,py,px+state.vx*scaleV,py-state.vy*scaleV,'#016895','v');
+   arrow(px,py,px+state.ax*scaleA,py-state.ay*scaleA,'#8C1515','a');
+   if(comp){
+     arrow(px,py,px+state.vx*scaleV,py,'#175E54','vₓ');arrow(px,py,px,py-state.vy*scaleV,'#175E54','vᵧ');
+     arrow(px,py,px+state.ax*scaleA,py,'#175E54','aₓ');arrow(px,py,px,py-state.ay*scaleA,'#175E54','aᵧ');
+   }
+   const theta=(Math.atan2(state.vy,state.vx)*180/Math.PI+360)%360;ctx.fillStyle='#544948';ctx.font='bold 13px sans-serif';ctx.fillText('θ = '+theta.toFixed(1)+'°',px+15,py+28);
+ }
+ updateReadouts();drawGraphs();
+}
+function updateReadouts(){
+ $('rt').textContent=state.t.toFixed(2)+' s';
+ if(state.mode==='1d'){
+  const vert=state.one==='vertical',p=vert?state.y:state.x,v=vert?state.vy:state.vx,a=vert?state.ay:state.ax;
+  $('rpLab').textContent=vert?'height y':'position x';$('rvLab').textContent=vert?'velocity vᵧ':'velocity v';$('raLab').textContent=vert?'acceleration aᵧ':'acceleration a';
+  $('rp').textContent=p.toFixed(2)+' m';$('rv').textContent=v.toFixed(2)+' m/s';$('ra').textContent=a.toFixed(2)+' m/s²';
+ }else{
+  const vm=Math.hypot(state.vx,state.vy),am=Math.hypot(state.ax,state.ay);$('rpLab').textContent='position (x, y)';$('rvLab').textContent='speed |v|';$('raLab').textContent='acceleration |a|';
+  $('rp').textContent='('+state.x.toFixed(1)+', '+state.y.toFixed(1)+') m';$('rv').textContent=vm.toFixed(2)+' m/s';$('ra').textContent=am.toFixed(2)+' m/s²';
+ }
+}
+function plot(canvas,series,title){
+ const c=canvas.getContext('2d'),W=canvas.clientWidth,H=canvas.clientHeight,p=30;c.clearRect(0,0,W,H);let pts=state.data.length?state.data:[{t:0}];
+ let vals=[];series.forEach(s=>pts.forEach(d=>vals.push(s.get(d))));let mn=Math.min(...vals,0),mx=Math.max(...vals,0);if(mx===mn){mx+=1;mn-=1}let pad=(mx-mn)*.12;mn-=pad;mx+=pad;let tmax=Math.max(5,pts[pts.length-1].t);
+ const X=t=>p+t/tmax*(W-p-8),Y=v=>H-p-(v-mn)/(mx-mn)*(H-2*p);
+ c.strokeStyle='#ddd8d1';c.lineWidth=1;c.beginPath();c.moveTo(p,8);c.lineTo(p,H-p);c.lineTo(W-8,H-p);c.stroke();
+ if(mn<=0&&mx>=0){c.beginPath();c.moveTo(p,Y(0));c.lineTo(W-8,Y(0));c.stroke()}
+ c.font='10px sans-serif';c.fillStyle='#777';c.fillText(mx.toFixed(1),2,13);c.fillText(mn.toFixed(1),2,H-p);c.fillText('t (s)',W-30,H-8);
+ const colors=['#016895','#175E54','#8C1515','#8a6d1d'];series.forEach((s,j)=>{c.strokeStyle=colors[j%colors.length];c.lineWidth=2;c.beginPath();pts.forEach((d,i)=>{let x=X(d.t),y=Y(s.get(d));i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();c.fillStyle=colors[j%colors.length];c.fillText(s.name,p+5,12+j*12)});
+}
+function drawGraphs(){
+ let s1,s2,s3;
+ if(state.mode==='1d'){const v=state.one==='vertical';s1=[{name:v?'y':'x',get:d=>v?d.y:d.x}];s2=[{name:v?'vᵧ':'v',get:d=>v?d.vy:d.vx}];s3=[{name:v?'aᵧ':'a',get:d=>v?d.ay:d.ax}];$('g1title').textContent='Position vs. time';$('g2title').textContent='Velocity vs. time';$('g3title').textContent='Acceleration vs. time'}
+ else{s1=[{name:'x',get:d=>d.x},{name:'y',get:d=>d.y}];s2=[{name:'vₓ',get:d=>d.vx},{name:'vᵧ',get:d=>d.vy}];s3=[{name:'aₓ',get:d=>d.ax},{name:'aᵧ',get:d=>d.ay}];$('g1title').textContent='Position components vs. time';$('g2title').textContent='Velocity components vs. time';$('g3title').textContent='Acceleration components vs. time'}
+ plot($('g1'),s1);plot($('g2'),s2);plot($('g3'),s3);
+}
+function pointerWorld(e){
+ const r=stage.getBoundingClientRect(),M=mapWorld(),px=e.clientX-r.left,py=e.clientY-r.top;
+ if(state.mode==='1d'&&state.one==='horizontal')return {x:(px-38)/(r.width-76)*60-20,y:0};
+ if(state.mode==='1d')return {x:0,y:Math.max(0,(r.height-38-py)/(r.height-76)*(M.ymax||40))};
+ if(state.mode==='2d')return {x:Math.max(0,(px-38)/(r.width-76)*(M.xmax||40)),y:Math.max(0,(r.height-38-py)/(r.height-76)*(M.ymax||40))};
+ return null;
+}
+stage.addEventListener('pointerdown',e=>{if(state.running||state.mode==='circular')return;state.drag=true;stage.setPointerCapture(e.pointerId)});
+stage.addEventListener('pointermove',e=>{if(!state.drag)return;let q=pointerWorld(e);if(!q)return;if(state.mode==='1d'){if(state.one==='horizontal')$('p0').value=q.x.toFixed(1);else $('p0').value=q.y.toFixed(1)}else{$('x02').value=q.x.toFixed(1);$('y02').value=q.y.toFixed(1)}reset()});
+stage.addEventListener('pointerup',()=>state.drag=false);stage.addEventListener('pointercancel',()=>state.drag=false);
+requestAnimationFrame(()=>{resizeAll();configure()});
 </script>
-
 </body>
 </html>
