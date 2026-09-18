@@ -1,153 +1,3710 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Physics Playground — Kinematics</title>
-<style>
-:root{--cardinal:#8C1515;--blue:#016895;--green:#175E54;--cream:#FFFBF5;--ink:#544948;--line:#DAD7CB;--pb:#E6F2F8;--pg:#E7F2EF}
-*{box-sizing:border-box} body{margin:0;background:#f6f4ef;color:var(--ink);font-family:"Source Sans 3","Source Sans Pro","Helvetica Neue",Helvetica,sans-serif}
-button,input,select{font:inherit}.shell{max-width:1180px;margin:22px auto 50px;padding:0 18px}.hero{background:linear-gradient(135deg,#8C1515,#BE3A4B);color:#fff;border-radius:20px;padding:22px 28px}.hero h1{margin:0;font-size:30px}.hero p{margin:5px 0 0;opacity:.9}
-.panel,.box{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:16px}.tabs,.subtabs,.buttons,.toggles,.objects,.speed{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
-.tab,.subtab,.btn,.object,.speed button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:9px 13px;cursor:pointer}.active{background:var(--pb)!important;border-color:#9cc8dc!important;color:#014f71!important}.primary{background:var(--cardinal)!important;color:#fff!important}.stop{background:var(--green)!important;color:#fff!important}
-.controls{display:grid;grid-template-columns:1.05fr 1.95fr;gap:16px}.box h3{margin:0 0 12px;color:var(--cardinal);font-size:18px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}label{font-size:14px;font-weight:600}input,select{width:100%;margin-top:4px;padding:8px;border:1px solid #bbb5aa;border-radius:9px;background:#fff}.toggle{display:flex;align-items:center;gap:6px}.toggle input{width:auto;margin:0}.extra{margin:9px 0 0 23px;padding:10px 12px;background:var(--pg);border-radius:10px;font-size:13px}
-.axisnote{padding:10px 12px;border-radius:11px;background:var(--pb);margin-bottom:12px;font-size:13px}.stagewrap{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}canvas{display:block;width:100%}#stage{height:430px}.tip,.note{font-size:12px;color:#766f6d}.readouts{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}.readout{background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:8px;text-align:center;font-size:13px}.readout b{display:block;color:var(--blue);font-size:15px}.graphs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}.graph{background:#fff;border:1px solid var(--line);border-radius:16px;padding:8px}.graph canvas{height:220px}
-@media(max-width:850px){.controls,.graphs{grid-template-columns:1fr}.readouts{grid-template-columns:repeat(2,1fr)}}
-</style></head>
-<body><div class="shell">
-<header class="hero"><h1>Physics Playground</h1><p>Kinematics • Wonder → Investigate → Understand</p></header>
-<section class="panel"><div class="tabs"><button class="tab active" data-mode="1d">1-D Motion</button><button class="tab" data-mode="2d">2-D Motion</button><button class="tab" data-mode="circ">Circular Motion</button></div><div id="oneTabs" class="subtabs" style="margin-top:10px"><button class="subtab active" data-one="h">Horizontal</button><button class="subtab" data-one="v">Vertical</button></div></section>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<div class="controls">
-<section class="box"><h3>Set up the motion</h3>
-<div class="objects"><button class="object active" data-object="mickey">Mickey</button><button class="object" data-object="cart">Cart</button><button class="object" data-object="peanut">Peanut the Physics Pug</button><button class="object" data-object="elephant">Elephant</button></div>
-<p class="note">Artwork placeholders are used for now. Your character images can be dropped in later without changing the physics.</p>
-<div id="gravBlock"><label>Location<select id="gravity"><option value="9.81">Earth — 9.81 m/s²</option><option value="1.62">Moon — 1.62 m/s²</option><option value="3.71">Mars — 3.71 m/s²</option><option value="24.79">Jupiter — 24.79 m/s²</option><option value="11.15">Neptune — 11.15 m/s²</option><option value="274">Sun — ≈274 m/s²</option><option value="190">Sirius A — ≈190 m/s²</option><option value="blackhole">Black Hole — model limit</option></select></label></div>
-<div id="inputs" class="grid" style="margin-top:12px"></div>
-<div class="buttons" style="margin-top:14px"><button id="start" class="btn primary">Start</button><button id="stop" class="btn stop">Stop</button><button id="step" class="btn">Step +0.10 s</button><button id="reset" class="btn">Reset</button></div>
-<div class="speed" style="margin-top:10px"><b style="font-size:13px">Playback:</b><button data-rate=".25">¼×</button><button data-rate=".5">½×</button><button data-rate="1" class="active">1× real time</button></div><div id="modelNote" class="note"></div>
+<title>Physics Playground — Kinematics</title>
+
+<style>
+:root{
+  --cardinal:#8C1515;
+  --blue:#016895;
+  --green:#175E54;
+  --cream:#FFFBF5;
+  --ink:#544948;
+  --line:#DAD7CB;
+  --pb:#E6F2F8;
+  --pg:#E7F2EF;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#f6f4ef;
+  color:var(--ink);
+  font-family:
+    "Source Sans 3",
+    "Source Sans Pro",
+    "Helvetica Neue",
+    Helvetica,
+    sans-serif;
+}
+
+button,
+input,
+select{
+  font:inherit;
+}
+
+.shell{
+  max-width:1180px;
+  margin:22px auto 50px;
+  padding:0 18px;
+}
+
+.hero{
+  background:linear-gradient(
+    135deg,
+    #8C1515,
+    #BE3A4B
+  );
+
+  color:#fff;
+  border-radius:20px;
+  padding:22px 28px;
+}
+
+.hero h1{
+  margin:0;
+  font-size:30px;
+}
+
+.panel,
+.box{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:18px;
+  margin-top:16px;
+}
+
+.tabs,
+.subtabs,
+.buttons,
+.toggles,
+.objects,
+.speed{
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.tab,
+.subtab,
+.btn,
+.object,
+.speed button{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  border-radius:12px;
+  padding:9px 13px;
+  cursor:pointer;
+}
+
+.active{
+  background:var(--pb)!important;
+  border-color:#9cc8dc!important;
+  color:#014f71!important;
+}
+
+.primary{
+  background:var(--cardinal)!important;
+  color:#fff!important;
+}
+
+.stop{
+  background:var(--green)!important;
+  color:#fff!important;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:1.05fr 1.95fr;
+  gap:16px;
+}
+
+.box h3{
+  margin:0 0 12px;
+  color:var(--cardinal);
+  font-size:18px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:
+    repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+label{
+  font-size:14px;
+  font-weight:600;
+}
+
+input,
+select{
+  width:100%;
+  margin-top:4px;
+  padding:8px;
+  border:1px solid #bbb5aa;
+  border-radius:9px;
+  background:#fff;
+}
+
+.toggle{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.toggle input{
+  width:auto;
+  margin:0;
+}
+
+.extra{
+  margin:9px 0 0 23px;
+  padding:10px 12px;
+  background:var(--pg);
+  border-radius:10px;
+  font-size:13px;
+}
+
+.axisnote{
+  padding:10px 12px;
+  border-radius:11px;
+  background:var(--pb);
+  margin-bottom:12px;
+  font-size:13px;
+}
+
+.stagewrap{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+}
+
+canvas{
+  display:block;
+  width:100%;
+}
+
+#stage{
+  height:430px;
+}
+
+.tip,
+.note{
+  font-size:12px;
+  color:#766f6d;
+}
+
+.readouts{
+  display:grid;
+  grid-template-columns:
+    repeat(5,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+
+.readout{
+  background:var(--cream);
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:8px;
+  text-align:center;
+  font-size:13px;
+}
+
+.readout b{
+  display:block;
+  color:var(--blue);
+  font-size:15px;
+}
+
+.graphs{
+  display:grid;
+  grid-template-columns:
+    repeat(3,1fr);
+  gap:12px;
+  margin-top:16px;
+}
+
+.graph{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:8px;
+}
+
+.graph canvas{
+  height:220px;
+}
+
+@media(max-width:850px){
+
+  .controls,
+  .graphs{
+    grid-template-columns:1fr;
+  }
+
+  .readouts{
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="shell">
+
+<header class="hero">
+  <h1>Physics Playground</h1>
+</header>
+
+
+<section class="panel">
+
+  <div class="tabs">
+
+    <button
+      class="tab active"
+      data-mode="1d">
+      1-D Motion
+    </button>
+
+    <button
+      class="tab"
+      data-mode="2d">
+      2-D Motion
+    </button>
+
+    <button
+      class="tab"
+      data-mode="circ">
+      Circular Motion
+    </button>
+
+  </div>
+
+
+  <div
+    id="oneTabs"
+    class="subtabs"
+    style="margin-top:10px">
+
+    <button
+      class="subtab active"
+      data-one="h">
+      Horizontal
+    </button>
+
+    <button
+      class="subtab"
+      data-one="v">
+      Vertical
+    </button>
+
+  </div>
+
 </section>
 
-<section class="box"><h3>Choose what to display</h3><div class="axisnote"><b>Coordinate convention:</b> click the sign at either end of an axis to reverse that axis. Default is + right and + up. The physical motion stays the same; its mathematical description changes.</div>
-<div class="toggles"><label class="toggle"><input id="dots" type="checkbox">Position dots</label><label class="toggle"><input id="vel" type="checkbox">Velocity vectors</label><label class="toggle"><input id="acc" type="checkbox">Acceleration vector</label><label class="toggle"><input id="disp" type="checkbox">Displacement vector</label><label id="compLabel" class="toggle"><input id="components" type="checkbox">Show components</label><label class="toggle"><input id="motion" type="checkbox">Motion diagram</label></div>
-<div id="velExtra" class="extra" style="display:none"><label class="toggle"><input id="dvOptional" type="checkbox">Show Δv</label></div>
-<div id="motionExtra" class="extra" style="display:none">Motion diagram records <b>position dots + velocity vectors</b> at equal time intervals.<br>Show change in velocity as:
-<label><input name="motionChange" type="radio" value="dv" checked> Δv</label> &nbsp; <label><input name="motionChange" type="radio" value="a"> acceleration</label></div>
-<p class="tip">Motion-diagram marks are deposited at equal time intervals—not equal distances.</p></section></div>
 
-<section class="panel"><div class="stagewrap"><canvas id="stage" width="1100" height="430"></canvas></div><div class="readouts"><div class="readout">time<b id="rt">0.00 s</b></div><div class="readout">position<b id="rp">0.00 m</b></div><div class="readout">velocity<b id="rv">0.00 m/s</b></div><div class="readout">acceleration<b id="ra">0.00 m/s²</b></div><div class="readout">displacement<b id="rd">0.00 m</b></div></div></section>
-<section class="graphs"><div class="graph"><canvas id="g1" width="350" height="220"></canvas></div><div class="graph"><canvas id="g2" width="350" height="220"></canvas></div><div class="graph"><canvas id="g3" width="350" height="220"></canvas></div></section>
+
+<div class="controls">
+
+
+<section class="box">
+
+<h3>Set up the motion</h3>
+
+
+<div class="objects">
+
+<button
+  class="object active"
+  data-object="mickey">
+  Mickey
+</button>
+
+<button
+  class="object"
+  data-object="cart">
+  Cart
+</button>
+
+<button
+  class="object"
+  data-object="peanut">
+  Peanut the Physics Pug
+</button>
+
+<button
+  class="object"
+  data-object="elephant">
+  Elephant
+</button>
+
 </div>
+
+
+<p class="note">
+Artwork placeholders are used for now.
+Your character images can be added later
+without changing the physics.
+</p>
+
+
+<div id="gravBlock">
+
+<label>
+Location
+
+<select id="gravity">
+
+<option value="9.81">
+Earth — 9.81 m/s²
+</option>
+
+<option value="1.62">
+Moon — 1.62 m/s²
+</option>
+
+<option value="3.71">
+Mars — 3.71 m/s²
+</option>
+
+<option value="24.79">
+Jupiter — 24.79 m/s²
+</option>
+
+<option value="11.15">
+Neptune — 11.15 m/s²
+</option>
+
+<option value="274">
+Sun — ≈274 m/s²
+</option>
+
+<option value="190">
+Sirius A — ≈190 m/s²
+</option>
+
+<option value="blackhole">
+Black Hole — model limit
+</option>
+
+</select>
+
+</label>
+
+</div>
+
+
+<div
+  id="inputs"
+  class="grid"
+  style="margin-top:12px">
+</div>
+
+
+
+<div
+  class="buttons"
+  style="margin-top:14px">
+
+<button
+  id="start"
+  class="btn primary">
+  Start
+</button>
+
+<button
+  id="stop"
+  class="btn stop">
+  Stop
+</button>
+
+<button
+  id="step"
+  class="btn">
+  Step +0.10 s
+</button>
+
+<button
+  id="reset"
+  class="btn">
+  Reset
+</button>
+
+</div>
+
+
+
+<div
+  class="speed"
+  style="margin-top:10px">
+
+<b style="font-size:13px">
+Playback:
+</b>
+
+<button data-rate=".25">
+¼×
+</button>
+
+<button data-rate=".5">
+½×
+</button>
+
+<button
+  data-rate="1"
+  class="active">
+1× real time
+</button>
+
+</div>
+
+
+<div
+  id="modelNote"
+  class="note">
+</div>
+
+</section>
+
+
+
+<section class="box">
+
+<h3>
+Choose what to display
+</h3>
+
+
+<div class="axisnote">
+
+<b>Coordinate convention:</b>
+
+click the sign at either end of an axis
+to reverse that axis.
+
+Default is + right and + up.
+
+The physical motion stays the same;
+its mathematical description changes.
+
+</div>
+
+
+
+<div class="toggles">
+
+
+<label class="toggle">
+
+<input
+  id="dots"
+  type="checkbox">
+
+Position dots
+
+</label>
+
+
+
+<label class="toggle">
+
+<input
+  id="vel"
+  type="checkbox">
+
+Velocity vectors
+
+</label>
+
+
+
+<label class="toggle">
+
+<input
+  id="acc"
+  type="checkbox">
+
+Acceleration vector
+
+</label>
+
+
+
+<label class="toggle">
+
+<input
+  id="disp"
+  type="checkbox">
+
+Displacement vector
+
+</label>
+
+
+
+<label
+  id="compLabel"
+  class="toggle">
+
+<input
+  id="components"
+  type="checkbox">
+
+Show components
+
+</label>
+
+
+
+<label class="toggle">
+
+<input
+  id="motion"
+  type="checkbox">
+
+Motion diagram
+
+</label>
+
+</div>
+
+
+
+<div
+  id="velExtra"
+  class="extra"
+  style="display:none">
+
+<label class="toggle">
+
+<input
+  id="dvOptional"
+  type="checkbox">
+
+Show Δv
+
+</label>
+
+</div>
+
+
+
+<div
+  id="motionExtra"
+  class="extra"
+  style="display:none">
+
+Motion diagram records
+<b>
+position dots + velocity vectors
+</b>
+at equal time intervals.
+
+<br><br>
+
+Show change in velocity as:
+
+<label>
+<input
+  name="motionChange"
+  type="radio"
+  value="dv"
+  checked>
+Δv
+</label>
+
+&nbsp;
+
+<label>
+<input
+  name="motionChange"
+  type="radio"
+  value="a">
+acceleration
+</label>
+
+</div>
+
+
+<p class="tip">
+
+Motion-diagram marks are deposited
+at equal time intervals—not equal distances.
+
+</p>
+
+</section>
+
+</div>
+
+
+
+<section class="panel">
+
+<div class="stagewrap">
+
+<canvas
+  id="stage"
+  width="1100"
+  height="430">
+</canvas>
+
+</div>
+
+
+
+<div class="readouts">
+
+<div class="readout">
+time
+<b id="rt">
+0.00 s
+</b>
+</div>
+
+
+<div class="readout">
+position
+<b id="rp">
+0.00 m
+</b>
+</div>
+
+
+<div class="readout">
+velocity
+<b id="rv">
+0.00 m/s
+</b>
+</div>
+
+
+<div class="readout">
+acceleration
+<b id="ra">
+0.00 m/s²
+</b>
+</div>
+
+
+<div class="readout">
+displacement
+<b id="rd">
+0.00 m
+</b>
+</div>
+
+</div>
+
+</section>
+
+
+
+<section class="graphs">
+
+<div class="graph">
+<canvas
+  id="g1"
+  width="350"
+  height="220">
+</canvas>
+</div>
+
+<div class="graph">
+<canvas
+  id="g2"
+  width="350"
+  height="220">
+</canvas>
+</div>
+
+<div class="graph">
+<canvas
+  id="g3"
+  width="350"
+  height="220">
+</canvas>
+</div>
+
+</section>
+
+</div>
+
+
+
 <script>
-const $=x=>document.getElementById(x),stage=$("stage"),ctx=stage.getContext("2d");
-let mode="1d",one="h",object="mickey",running=false,rate=1,t=0,lastWall=0,init={},sign={x:1,y:1},marks=[],lastMark=-1e9,graph={p:[],v:[],a:[]},lastGraph=-1e9;
-const markDt=.5, f=n=>Math.abs(n)<5e-10?"0.00":n.toFixed(2), g=()=>$("gravity").value==="blackhole"?null:+$("gravity").value, needsG=()=>mode==="2d"||(mode==="1d"&&one==="v");
+
+const $ =
+  x => document.getElementById(x);
+
+const stage =
+  $("stage");
+
+const ctx =
+  stage.getContext("2d");
+
+
+let mode = "1d";
+
+let one = "h";
+
+let object = "mickey";
+
+let running = false;
+
+let rate = 1;
+
+let t = 0;
+
+let lastWall = 0;
+
+let init = {};
+
+let sign = {
+  x:1,
+  y:1
+};
+
+let marks = [];
+
+let lastMark = -1e9;
+
+let graph = {
+  p:[],
+  v:[],
+  a:[]
+};
+
+let lastGraph = -1e9;
+
+
+const markDt = .5;
+
+
+const f =
+  n =>
+    Math.abs(n) < 5e-10
+      ? "0.00"
+      : n.toFixed(2);
+
+
+const g =
+  () =>
+    $("gravity").value === "blackhole"
+      ? null
+      : +$("gravity").value;
+
+
+const needsG =
+  () =>
+    mode === "2d" ||
+    (
+      mode === "1d" &&
+      one === "v"
+    );
+
+
 
 function buildInputs(){
- let s="";
- if(mode==="1d"&&one==="h")s='<label>Initial position x₀ (m)<input id="x0" type="number" value="0" step=".5"></label><label>Initial velocity v₀ (m/s)<input id="v0" type="number" value="8" step=".5"></label><label>Acceleration a (m/s²)<input id="a0" type="number" value="0" step=".5"></label>';
- else if(mode==="1d")s='<label>Initial position y₀ (m)<input id="y0" type="number" value="20" min="0" step=".5"></label><label>Initial velocity v₀ (m/s)<input id="v0" type="number" value="0" step=".5"></label>';
- else if(mode==="2d")s='<label>Initial x (m)<input id="x0" type="number" value="0" step=".5"></label><label>Initial y (m)<input id="y0" type="number" value="0" min="0" step=".5"></label><label>Speed (m/s)<input id="speed0" type="number" value="18" min="0" step=".5"></label><label>Launch angle θ (°)<input id="theta0" type="number" value="45" step="1"></label>';
- else s='<label>Radius r (m)<input id="radius" type="number" value="8" min=".5" step=".5"></label><label>Speed (m/s)<input id="speed0" type="number" value="6" min="0" step=".5"></label>';
- $("inputs").innerHTML=s; $("inputs").querySelectorAll("input").forEach(e=>e.onchange=reset); configure();
+
+  let s = "";
+
+
+  if(
+    mode === "1d" &&
+    one === "h"
+  ){
+
+    s = `
+
+<label>
+
+Initial position x₀ (m)
+
+<input
+  id="x0"
+  type="number"
+  value="0"
+  step=".5">
+
+</label>
+
+
+<label>
+
+Initial velocity v₀ (m/s)
+
+<input
+  id="v0"
+  type="number"
+  value="8"
+  step=".5">
+
+</label>
+
+
+<label>
+
+Acceleration a (m/s²)
+
+<input
+  id="a0"
+  type="number"
+  value="0"
+  step=".5">
+
+</label>
+
+`;
+
+  }
+
+
+  else if(
+    mode === "1d"
+  ){
+
+    s = `
+
+<label>
+
+Initial position y₀ (m)
+
+<input
+  id="y0"
+  type="number"
+  value="20"
+  min="0"
+  step=".5">
+
+</label>
+
+
+<label>
+
+Initial velocity v₀ (m/s)
+
+<input
+  id="v0"
+  type="number"
+  value="0"
+  step=".5">
+
+</label>
+
+`;
+
+  }
+
+
+  else if(
+    mode === "2d"
+  ){
+
+    s = `
+
+<label>
+
+Initial x (m)
+
+<input
+  id="x0"
+  type="number"
+  value="0"
+  step=".5">
+
+</label>
+
+
+<label>
+
+Initial y (m)
+
+<input
+  id="y0"
+  type="number"
+  value="0"
+  min="0"
+  step=".5">
+
+</label>
+
+
+<label>
+
+Speed (m/s)
+
+<input
+  id="speed0"
+  type="number"
+  value="18"
+  min="0"
+  step=".5">
+
+</label>
+
+
+<label>
+
+Launch angle θ (°)
+
+<input
+  id="theta0"
+  type="number"
+  value="45"
+  step="1">
+
+</label>
+
+`;
+
+  }
+
+
+  else{
+
+    s = `
+
+<label>
+
+Radius r (m)
+
+<input
+  id="radius"
+  type="number"
+  value="8"
+  min=".5"
+  step=".5">
+
+</label>
+
+
+<label>
+
+Speed (m/s)
+
+<input
+  id="speed0"
+  type="number"
+  value="6"
+  min="0"
+  step=".5">
+
+</label>
+
+`;
+
+  }
+
+
+  $("inputs").innerHTML = s;
+
+
+  $("inputs")
+    .querySelectorAll("input")
+    .forEach(
+      e => e.onchange = reset
+    );
+
+
+  configure();
+
 }
+
+
+
 function capture(){
- if(mode==="1d"&&one==="h")return{x:+$("x0").value,v:+$("v0").value,a:+$("a0").value};
- if(mode==="1d")return{y:+$("y0").value,v:+$("v0").value,g:g()};
- if(mode==="2d"){let sp=+$("speed0").value,th=+$("theta0").value*Math.PI/180;return{x:+$("x0").value,y:+$("y0").value,vx:sp*Math.cos(th),vy:sp*Math.sin(th),g:g()}}
- return{r:+$("radius").value,sp:+$("speed0").value};
+
+  if(
+    mode === "1d" &&
+    one === "h"
+  ){
+
+    return {
+
+      x:+$("x0").value,
+
+      v:+$("v0").value,
+
+      a:+$("a0").value
+
+    };
+
+  }
+
+
+  if(
+    mode === "1d"
+  ){
+
+    return {
+
+      y:+$("y0").value,
+
+      v:+$("v0").value,
+
+      g:g()
+
+    };
+
+  }
+
+
+  if(
+    mode === "2d"
+  ){
+
+    let sp =
+      +$("speed0").value;
+
+    let th =
+      +$("theta0").value *
+      Math.PI /
+      180;
+
+
+    return {
+
+      x:+$("x0").value,
+
+      y:+$("y0").value,
+
+      vx:
+        sp *
+        Math.cos(th),
+
+      vy:
+        sp *
+        Math.sin(th),
+
+      g:g()
+
+    };
+
+  }
+
+
+  return {
+
+    r:+$("radius").value,
+
+    sp:+$("speed0").value
+
+  };
+
 }
+
+
+
 function state(T){
- if(mode==="1d"&&one==="h")return{x:init.x+init.v*T+.5*init.a*T*T,y:0,vx:init.v+init.a*T,vy:0,ax:init.a,ay:0};
- if(mode==="1d"){let y=init.y+init.v*T-.5*init.g*T*T,vy=init.v-init.g*T,ground=y<=0&&T>0;return{x:0,y:Math.max(0,y),vx:0,vy,ax:0,ay:-init.g,ground}}
- if(mode==="2d"){let y=init.y+init.vy*T-.5*init.g*T*T,ground=y<=0&&T>.001;return{x:init.x+init.vx*T,y:Math.max(0,y),vx:init.vx,vy:init.vy-init.g*T,ax:0,ay:-init.g,ground}}
- let w=init.r?init.sp/init.r:0,A=w*T;return{x:init.r*Math.cos(A),y:init.r*Math.sin(A),vx:-init.sp*Math.sin(A),vy:init.sp*Math.cos(A),ax:-(init.sp*init.sp/init.r)*Math.cos(A),ay:-(init.sp*init.sp/init.r)*Math.sin(A)};
+
+  if(
+    mode === "1d" &&
+    one === "h"
+  ){
+
+    return {
+
+      x:
+        init.x +
+        init.v*T +
+        .5*init.a*T*T,
+
+      y:0,
+
+      vx:
+        init.v +
+        init.a*T,
+
+      vy:0,
+
+      ax:init.a,
+
+      ay:0
+
+    };
+
+  }
+
+
+
+  if(
+    mode === "1d"
+  ){
+
+    let y =
+      init.y +
+      init.v*T -
+      .5*init.g*T*T;
+
+
+    let vy =
+      init.v -
+      init.g*T;
+
+
+    let ground =
+      y <= 0 &&
+      T > 0;
+
+
+    return {
+
+      x:0,
+
+      y:
+        Math.max(
+          0,
+          y
+        ),
+
+      vx:0,
+
+      vy:vy,
+
+      ax:0,
+
+      ay:-init.g,
+
+      ground:ground
+
+    };
+
+  }
+
+
+
+  if(
+    mode === "2d"
+  ){
+
+    let y =
+      init.y +
+      init.vy*T -
+      .5*init.g*T*T;
+
+
+    let ground =
+      y <= 0 &&
+      T > .001;
+
+
+    return {
+
+      x:
+        init.x +
+        init.vx*T,
+
+      y:
+        Math.max(
+          0,
+          y
+        ),
+
+      vx:init.vx,
+
+      vy:
+        init.vy -
+        init.g*T,
+
+      ax:0,
+
+      ay:-init.g,
+
+      ground:ground
+
+    };
+
+  }
+
+
+
+  let w =
+    init.r
+      ? init.sp /
+        init.r
+      : 0;
+
+
+  let A =
+    w*T;
+
+
+  return {
+
+    x:
+      init.r *
+      Math.cos(A),
+
+    y:
+      init.r *
+      Math.sin(A),
+
+    vx:
+      -init.sp *
+      Math.sin(A),
+
+    vy:
+      init.sp *
+      Math.cos(A),
+
+    ax:
+      -(
+        init.sp *
+        init.sp /
+        init.r
+      ) *
+      Math.cos(A),
+
+    ay:
+      -(
+        init.sp *
+        init.sp /
+        init.r
+      ) *
+      Math.sin(A)
+
+  };
+
 }
-const signed=s=>({...s,x:s.x*sign.x,y:s.y*sign.y,vx:s.vx*sign.x,vy:s.vy*sign.y,ax:s.ax*sign.x,ay:s.ay*sign.y});
+
+
+
+const signed =
+  s => ({
+
+    ...s,
+
+    x:
+      s.x *
+      sign.x,
+
+    y:
+      s.y *
+      sign.y,
+
+    vx:
+      s.vx *
+      sign.x,
+
+    vy:
+      s.vy *
+      sign.y,
+
+    ax:
+      s.ax *
+      sign.x,
+
+    ay:
+      s.ay *
+      sign.y
+
+  });
+
+
+
 function configure(){
- $("oneTabs").style.display=mode==="1d"?"flex":"none";$("gravBlock").style.display=needsG()?"block":"none";$("compLabel").style.display=(mode==="2d"||mode==="circ")?"flex":"none";
- let bad=needsG()&&g()===null;$("start").disabled=bad;$("step").disabled=bad;$("modelNote").textContent=bad?"A single constant surface-g model is not appropriate for a black hole. This is intentionally a model limit.":""; reset();
+
+  $("oneTabs").style.display =
+    mode === "1d"
+      ? "flex"
+      : "none";
+
+
+  $("gravBlock").style.display =
+    needsG()
+      ? "block"
+      : "none";
+
+
+  $("compLabel").style.display =
+    (
+      mode === "2d" ||
+      mode === "circ"
+    )
+      ? "flex"
+      : "none";
+
+
+  let bad =
+    needsG() &&
+    g() === null;
+
+
+  $("start").disabled =
+    bad;
+
+
+  $("step").disabled =
+    bad;
+
+
+  $("modelNote").textContent =
+    bad
+      ? "A single constant surface-g model is not appropriate for a black hole. This is intentionally a model limit."
+      : "";
+
+
+  reset();
+
 }
-function reset(){running=false;t=0;lastWall=0;marks=[];lastMark=-1e9;graph={p:[],v:[],a:[]};lastGraph=-1e9;init=capture();record(true);draw()}
-function start(){if(needsG()&&g()===null)return;if(!running){running=true;lastWall=performance.now();requestAnimationFrame(loop)}}
-function stop(){running=false}
-function step(){if(needsG()&&g()===null)return;running=false;t+=.1;record();if(state(t).ground)running=false;draw()}
-function loop(now){if(!running)return;let wall=(now-lastWall)/1000;lastWall=now;
- // Preserve real elapsed time at 1×. Only discard giant gaps caused by hidden/suspended tabs.
- if(wall>1)wall=0;t+=wall*rate;record();draw();if(state(t).ground){running=false;return}requestAnimationFrame(loop)}
-function record(force=false){
- let s=state(t),ss=signed(s);
- if(force||t-lastMark>=markDt-.001){marks.push({t,...s});lastMark=t}
- if(force||t-lastGraph>=.05){let P,V,A;if(mode==="1d"){P=one==="h"?ss.x:ss.y;V=one==="h"?ss.vx:ss.vy;A=one==="h"?ss.ax:ss.ay}else if(mode==="2d"){P=ss.y;V=ss.vy;A=ss.ay}else{P=Math.atan2(ss.y,ss.x);V=Math.hypot(ss.vx,ss.vy);A=Math.hypot(ss.ax,ss.ay)}
- graph.p.push([t,P]);graph.v.push([t,V]);graph.a.push([t,A]);lastGraph=t}
+
+
+
+function reset(){
+
+  running = false;
+
+  t = 0;
+
+  lastWall = 0;
+
+  marks = [];
+
+  lastMark = -1e9;
+
+  graph = {
+    p:[],
+    v:[],
+    a:[]
+  };
+
+  lastGraph = -1e9;
+
+  init = capture();
+
+  record(true);
+
+  draw();
+
 }
-function map(x,y){
- if(mode==="1d"&&one==="h")return{x:90+(x+20)/60*920,y:235};
- if(mode==="1d")return{x:550,y:365-Math.max(0,Math.min(40,y))/40*300};
- if(mode==="2d")return{x:90+(x+10)/70*920,y:365-Math.max(0,Math.min(40,y))/40*300};
- return{x:550+x*16,y:215-y*16};
+
+
+
+function start(){
+
+  if(
+    needsG() &&
+    g() === null
+  ){
+    return;
+  }
+
+
+  if(
+    !running
+  ){
+
+    running = true;
+
+    lastWall =
+      performance.now();
+
+    requestAnimationFrame(
+      loop
+    );
+
+  }
+
 }
-function arrow(base,vec,label,scale=5,kind="v"){
- let p=map(base.x,base.y),q=map(base.x+vec.x/scale,base.y+vec.y/scale),dx=q.x-p.x,dy=q.y-p.y,L=Math.hypot(dx,dy);if(L<2)return;
- ctx.save();ctx.strokeStyle=kind==="a"?"#8C1515":"#016895";ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();let A=Math.atan2(dy,dx);ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(q.x-10*Math.cos(A-.45),q.y-10*Math.sin(A-.45));ctx.lineTo(q.x-10*Math.cos(A+.45),q.y-10*Math.sin(A+.45));ctx.closePath();ctx.fill();ctx.font="bold 14px Source Sans 3,sans-serif";ctx.fillText(label,q.x+5,q.y-5);ctx.restore();
+
+
+
+function stop(){
+
+  running = false;
+
 }
-function vectorWithComponents(s,type){
- let v=type==="v"?{x:s.vx,y:s.vy}:{x:s.ax,y:s.ay},lab=type==="v"?"v":"a";arrow(s,v,lab,5,type);
- if($("components").checked&&(mode==="2d"||mode==="circ")){arrow(s,{x:v.x,y:0},lab+"ₓ",5,type);arrow(s,{x:0,y:v.y},lab+"ᵧ",5,type)}
+
+
+
+function step(){
+
+  if(
+    needsG() &&
+    g() === null
+  ){
+    return;
+  }
+
+
+  running = false;
+
+  t += .1;
+
+  record();
+
+  draw();
+
 }
+
+
+
+function loop(now){
+
+  if(
+    !running
+  ){
+    return;
+  }
+
+
+  let wall =
+    (
+      now -
+      lastWall
+    ) /
+    1000;
+
+
+  lastWall =
+    now;
+
+
+  if(
+    wall > 1
+  ){
+    wall = 0;
+  }
+
+
+  t +=
+    wall *
+    rate;
+
+
+  record();
+
+  draw();
+
+
+  if(
+    state(t).ground
+  ){
+
+    running = false;
+
+    return;
+
+  }
+
+
+  requestAnimationFrame(
+    loop
+  );
+
+}
+
+
+
+function record(
+  force = false
+){
+
+  let s =
+    state(t);
+
+  let ss =
+    signed(s);
+
+
+  if(
+    force ||
+    t-lastMark >=
+    markDt-.001
+  ){
+
+    marks.push({
+      t,
+      ...s
+    });
+
+    lastMark = t;
+
+  }
+
+
+  if(
+    force ||
+    t-lastGraph >= .05
+  ){
+
+    let P;
+    let V;
+    let A;
+
+
+    if(
+      mode === "1d"
+    ){
+
+      P =
+        one === "h"
+          ? ss.x
+          : ss.y;
+
+      V =
+        one === "h"
+          ? ss.vx
+          : ss.vy;
+
+      A =
+        one === "h"
+          ? ss.ax
+          : ss.ay;
+
+    }
+
+
+    else if(
+      mode === "2d"
+    ){
+
+      P = ss.y;
+
+      V = ss.vy;
+
+      A = ss.ay;
+
+    }
+
+
+    else{
+
+      P =
+        Math.atan2(
+          ss.y,
+          ss.x
+        );
+
+      V =
+        Math.hypot(
+          ss.vx,
+          ss.vy
+        );
+
+      A =
+        Math.hypot(
+          ss.ax,
+          ss.ay
+        );
+
+    }
+
+
+    graph.p.push([
+      t,
+      P
+    ]);
+
+    graph.v.push([
+      t,
+      V
+    ]);
+
+    graph.a.push([
+      t,
+      A
+    ]);
+
+
+    lastGraph =
+      t;
+
+  }
+
+}
+
+
+
+function map(
+  x,
+  y
+){
+
+  if(
+    mode === "1d" &&
+    one === "h"
+  ){
+
+    return {
+
+      x:
+        90 +
+        (x+20) /
+        60 *
+        920,
+
+      y:235
+
+    };
+
+  }
+
+
+  if(
+    mode === "1d"
+  ){
+
+    return {
+
+      x:550,
+
+      y:
+        365 -
+        Math.max(
+          0,
+          Math.min(
+            40,
+            y
+          )
+        ) /
+        40 *
+        300
+
+    };
+
+  }
+
+
+  if(
+    mode === "2d"
+  ){
+
+    return {
+
+      x:
+        90 +
+        (x+10) /
+        70 *
+        920,
+
+      y:
+        365 -
+        Math.max(
+          0,
+          Math.min(
+            40,
+            y
+          )
+        ) /
+        40 *
+        300
+
+    };
+
+  }
+
+
+  return {
+
+    x:
+      550 +
+      x*16,
+
+    y:
+      215 -
+      y*16
+
+  };
+
+}
+
+
+
+function arrow(
+  base,
+  vec,
+  label,
+  scale = 5,
+  kind = "v"
+){
+
+  let p =
+    map(
+      base.x,
+      base.y
+    );
+
+
+  let q =
+    map(
+      base.x +
+      vec.x/scale,
+
+      base.y +
+      vec.y/scale
+    );
+
+
+  let dx =
+    q.x-p.x;
+
+  let dy =
+    q.y-p.y;
+
+
+  let L =
+    Math.hypot(
+      dx,
+      dy
+    );
+
+
+  if(
+    L < 2
+  ){
+    return;
+  }
+
+
+  ctx.save();
+
+
+  if(
+    kind === "a"
+  ){
+
+    ctx.strokeStyle =
+      "#8C1515";
+
+    ctx.fillStyle =
+      "#8C1515";
+
+  }
+
+  else{
+
+    ctx.strokeStyle =
+      "#016895";
+
+    ctx.fillStyle =
+      "#016895";
+
+  }
+
+
+  ctx.lineWidth = 3;
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    p.x,
+    p.y
+  );
+
+  ctx.lineTo(
+    q.x,
+    q.y
+  );
+
+  ctx.stroke();
+
+
+  let A =
+    Math.atan2(
+      dy,
+      dx
+    );
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    q.x,
+    q.y
+  );
+
+
+  ctx.lineTo(
+
+    q.x -
+    10 *
+    Math.cos(
+      A-.45
+    ),
+
+    q.y -
+    10 *
+    Math.sin(
+      A-.45
+    )
+
+  );
+
+
+  ctx.lineTo(
+
+    q.x -
+    10 *
+    Math.cos(
+      A+.45
+    ),
+
+    q.y -
+    10 *
+    Math.sin(
+      A+.45
+    )
+
+  );
+
+
+  ctx.closePath();
+
+  ctx.fill();
+
+
+  ctx.font =
+    "bold 14px 'Source Sans 3', 'Source Sans Pro', sans-serif";
+
+
+  ctx.fillText(
+    label,
+    q.x+6,
+    q.y-6
+  );
+
+
+  ctx.restore();
+
+}
+
+
+
+function vectorWithComponents(
+  s,
+  type
+){
+
+  let v =
+    type === "v"
+
+      ? {
+          x:s.vx,
+          y:s.vy
+        }
+
+      : {
+          x:s.ax,
+          y:s.ay
+        };
+
+
+  let lab =
+    type === "v"
+      ? "v"
+      : "a";
+
+
+  arrow(
+    s,
+    v,
+    lab,
+    5,
+    type
+  );
+
+
+  if(
+    $("components").checked &&
+    (
+      mode === "2d" ||
+      mode === "circ"
+    )
+  ){
+
+    arrow(
+      s,
+      {
+        x:v.x,
+        y:0
+      },
+      lab+"ₓ",
+      5,
+      type
+    );
+
+
+    arrow(
+      s,
+      {
+        x:0,
+        y:v.y
+      },
+      lab+"ᵧ",
+      5,
+      type
+    );
+
+  }
+
+}
+
+
+
 function axes(){
- ctx.save();ctx.strokeStyle="#544948";ctx.fillStyle="#544948";ctx.lineWidth=1.5;ctx.font="bold 16px Source Sans 3,sans-serif";
- if(mode==="1d"&&one==="h"){
-  ctx.fillStyle="#dedbd4";ctx.fillRect(45,285,1010,48);ctx.strokeStyle="#aaa39b";for(let x=45;x<1055;x+=28){ctx.beginPath();ctx.moveTo(x,333);ctx.lineTo(x+20,285);ctx.stroke()}
-  ctx.strokeStyle="#544948";ctx.beginPath();ctx.moveTo(55,235);ctx.lineTo(1045,235);ctx.stroke();for(let x=90;x<=1010;x+=92){ctx.beginPath();ctx.moveTo(x,229);ctx.lineTo(x,241);ctx.stroke()}
-  ctx.fillStyle="#544948";ctx.fillText(sign.x===1?"−":"+",55,220);ctx.fillText(sign.x===1?"+":"−",1030,220);
- }else if(mode==="1d"){
-  ctx.beginPath();ctx.moveTo(550,35);ctx.lineTo(550,390);ctx.stroke();ctx.fillText(sign.y===1?"+":"−",566,50);ctx.fillText(sign.y===1?"−":"+",566,385);
- }else{
-  let O=map(0,0);ctx.beginPath();ctx.moveTo(55,O.y);ctx.lineTo(1045,O.y);ctx.moveTo(O.x,25);ctx.lineTo(O.x,400);ctx.stroke();ctx.fillText(sign.x===1?"+x":"−x",1010,O.y-10);ctx.fillText(sign.x===1?"−x":"+x",58,O.y-10);ctx.fillText(sign.y===1?"+y":"−y",O.x+10,42);ctx.fillText(sign.y===1?"−y":"+y",O.x+10,395);
- }ctx.restore();
+
+  ctx.save();
+
+  ctx.strokeStyle =
+    "#544948";
+
+  ctx.fillStyle =
+    "#544948";
+
+  ctx.lineWidth =
+    1.5;
+
+  ctx.font =
+    "bold 16px 'Source Sans 3', 'Source Sans Pro', sans-serif";
+
+
+  if(
+    mode === "1d" &&
+    one === "h"
+  ){
+
+    /*
+      PHYSICAL ROAD
+    */
+
+    ctx.fillStyle =
+      "#dedbd4";
+
+    ctx.fillRect(
+      45,
+      285,
+      1010,
+      48
+    );
+
+
+    ctx.strokeStyle =
+      "#aaa39b";
+
+
+    for(
+      let x=45;
+      x<1055;
+      x+=28
+    ){
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        x,
+        333
+      );
+
+      ctx.lineTo(
+        x+20,
+        285
+      );
+
+      ctx.stroke();
+
+    }
+
+
+    /*
+      MATHEMATICAL AXIS
+      through object reference / COM
+    */
+
+    ctx.strokeStyle =
+      "#544948";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      55,
+      235
+    );
+
+    ctx.lineTo(
+      1045,
+      235
+    );
+
+    ctx.stroke();
+
+
+    for(
+      let x=90;
+      x<=1010;
+      x+=92
+    ){
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        x,
+        229
+      );
+
+      ctx.lineTo(
+        x,
+        241
+      );
+
+      ctx.stroke();
+
+    }
+
+
+    ctx.fillStyle =
+      "#544948";
+
+
+    ctx.fillText(
+      sign.x === 1
+        ? "−"
+        : "+",
+      55,
+      220
+    );
+
+
+    ctx.fillText(
+      sign.x === 1
+        ? "+"
+        : "−",
+      1030,
+      220
+    );
+
+  }
+
+
+  else if(
+    mode === "1d"
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      550,
+      35
+    );
+
+    ctx.lineTo(
+      550,
+      390
+    );
+
+    ctx.stroke();
+
+
+    ctx.fillText(
+      sign.y === 1
+        ? "+"
+        : "−",
+      566,
+      50
+    );
+
+
+    ctx.fillText(
+      sign.y === 1
+        ? "−"
+        : "+",
+      566,
+      385
+    );
+
+  }
+
+
+  else{
+
+    let O =
+      map(
+        0,
+        0
+      );
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      55,
+      O.y
+    );
+
+    ctx.lineTo(
+      1045,
+      O.y
+    );
+
+
+    ctx.moveTo(
+      O.x,
+      25
+    );
+
+    ctx.lineTo(
+      O.x,
+      400
+    );
+
+    ctx.stroke();
+
+
+    ctx.fillText(
+      sign.x === 1
+        ? "+x"
+        : "−x",
+      1010,
+      O.y-10
+    );
+
+
+    ctx.fillText(
+      sign.x === 1
+        ? "−x"
+        : "+x",
+      58,
+      O.y-10
+    );
+
+
+    ctx.fillText(
+      sign.y === 1
+        ? "+y"
+        : "−y",
+      O.x+10,
+      42
+    );
+
+
+    ctx.fillText(
+      sign.y === 1
+        ? "−y"
+        : "+y",
+      O.x+10,
+      395
+    );
+
+  }
+
+
+  ctx.restore();
+
 }
-function drawObject(s){
- let p=map(s.x,s.y);ctx.save();ctx.translate(p.x,p.y);let face=Math.abs(s.vx)>.03?(s.vx>=0?1:-1):1;ctx.scale(face,1);
- if(object==="cart"){ctx.fillStyle="#8C1515";ctx.fillRect(-30,-23,60,28);ctx.fillStyle="#333";ctx.beginPath();ctx.arc(-18,10,8,0,Math.PI*2);ctx.arc(18,10,8,0,Math.PI*2);ctx.fill()}
- else{let L={mickey:"M",peanut:"P",elephant:"E"}[object],r=object==="elephant"?28:22;ctx.fillStyle=object==="peanut"?"#E7F2EF":"#FFFBF5";ctx.strokeStyle="#544948";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-10,r,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#544948";ctx.font="bold 20px Source Sans 3,sans-serif";ctx.textAlign="center";ctx.fillText(L,0,-3)}
- ctx.restore();
+
+
+
+function drawObject(
+  s
+){
+
+  let p =
+    map(
+      s.x,
+      s.y
+    );
+
+
+  ctx.save();
+
+
+  ctx.translate(
+    p.x,
+    p.y
+  );
+
+
+  /*
+    Facing follows PHYSICAL motion,
+    not coordinate sign convention.
+  */
+
+  let face =
+    Math.abs(s.vx) > .03
+
+      ? (
+          s.vx >= 0
+            ? 1
+            : -1
+        )
+
+      : 1;
+
+
+  ctx.scale(
+    face,
+    1
+  );
+
+
+  if(
+    object === "cart"
+  ){
+
+    ctx.fillStyle =
+      "#8C1515";
+
+
+    ctx.fillRect(
+      -30,
+      -23,
+      60,
+      28
+    );
+
+
+    ctx.fillStyle =
+      "#333";
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      -18,
+      10,
+      8,
+      0,
+      Math.PI*2
+    );
+
+
+    ctx.arc(
+      18,
+      10,
+      8,
+      0,
+      Math.PI*2
+    );
+
+
+    ctx.fill();
+
+  }
+
+
+  else{
+
+    let L = {
+
+      mickey:"M",
+
+      peanut:"P",
+
+      elephant:"E"
+
+    }[object];
+
+
+    let r =
+      object === "elephant"
+        ? 28
+        : 22;
+
+
+    ctx.fillStyle =
+      object === "peanut"
+        ? "#E7F2EF"
+        : "#FFFBF5";
+
+
+    ctx.strokeStyle =
+      "#544948";
+
+
+    ctx.lineWidth =
+      2;
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+      0,
+      -10,
+      r,
+      0,
+      Math.PI*2
+    );
+
+
+    ctx.fill();
+
+    ctx.stroke();
+
+
+    ctx.fillStyle =
+      "#544948";
+
+
+    ctx.font =
+      "bold 20px 'Source Sans 3', 'Source Sans Pro', sans-serif";
+
+
+    ctx.textAlign =
+      "center";
+
+
+    ctx.fillText(
+      L,
+      0,
+      -3
+    );
+
+  }
+
+
+  ctx.restore();
+
 }
+
+
+
+/*
+======================================================
+HISTORICAL REPRESENTATIONS
+======================================================
+
+Position dots:
+    historical dots only.
+
+Velocity vector checkbox:
+    DOES NOT create historical vectors.
+
+Acceleration vector checkbox:
+    DOES NOT create historical vectors.
+
+Motion Diagram:
+    position dots
+    + velocity vectors
+    + either Δv or acceleration
+
+======================================================
+*/
+
 function history(){
- let motion=$("motion").checked,dots=$("dots").checked||motion,vv=$("vel").checked||motion,choice=document.querySelector('input[name="motionChange"]:checked').value;
- marks.forEach((h,i)=>{let p=map(h.x,h.y);if(dots){ctx.fillStyle="#544948";ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill()}if(vv)vectorWithComponents(h,"v");
-  if(motion&&choice==="a")vectorWithComponents(h,"a");
-  if(motion&&choice==="dv"&&i>0){let z=marks[i-1];arrow(h,{x:h.vx-z.vx,y:h.vy-z.vy},"Δv",5,"v")}
- });
+
+  const motion =
+    $("motion").checked;
+
+
+  const showDots =
+    $("dots").checked ||
+    motion;
+
+
+  if(
+    !showDots &&
+    !motion
+  ){
+    return;
+  }
+
+
+  const choice =
+    document.querySelector(
+      'input[name="motionChange"]:checked'
+    ).value;
+
+
+  marks.forEach(
+    (h,i) => {
+
+
+      /*
+        POSITION DOTS
+      */
+
+      if(
+        showDots
+      ){
+
+        const p =
+          map(
+            h.x,
+            h.y
+          );
+
+
+        ctx.save();
+
+
+        ctx.fillStyle =
+          "#544948";
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+          p.x,
+          p.y,
+          4,
+          0,
+          Math.PI*2
+        );
+
+
+        ctx.fill();
+
+
+        ctx.restore();
+
+      }
+
+
+
+      /*
+        Everything below belongs
+        ONLY to Motion Diagram.
+      */
+
+      if(
+        !motion
+      ){
+        return;
+      }
+
+
+
+      /*
+        HISTORICAL VELOCITY
+      */
+
+      vectorWithComponents(
+        h,
+        "v"
+      );
+
+
+
+      /*
+        HISTORICAL ACCELERATION
+      */
+
+      if(
+        choice === "a"
+      ){
+
+        const amag =
+          Math.hypot(
+            h.ax,
+            h.ay
+          );
+
+
+        if(
+          amag > 1e-9
+        ){
+
+          vectorWithComponents(
+            h,
+            "a"
+          );
+
+        }
+
+      }
+
+
+
+      /*
+        HISTORICAL DELTA-V
+      */
+
+      if(
+        choice === "dv" &&
+        i > 0
+      ){
+
+        const previous =
+          marks[i-1];
+
+
+        const dv = {
+
+          x:
+            h.vx -
+            previous.vx,
+
+          y:
+            h.vy -
+            previous.vy
+
+        };
+
+
+        const dvmag =
+          Math.hypot(
+            dv.x,
+            dv.y
+          );
+
+
+        if(
+          dvmag > 1e-9
+        ){
+
+          arrow(
+            h,
+            dv,
+            "Δv",
+            5,
+            "dv"
+          );
+
+        }
+
+      }
+
+    }
+  );
+
 }
+
+
+
+/*
+======================================================
+ZERO VECTOR LABEL
+======================================================
+*/
+
+function drawZeroVectorLabel(
+  s,
+  text,
+  color,
+  offsetY
+){
+
+  const p =
+    map(
+      s.x,
+      s.y
+    );
+
+
+  ctx.save();
+
+
+  ctx.fillStyle =
+    color;
+
+
+  ctx.font =
+    "bold 14px 'Source Sans 3', 'Source Sans Pro', sans-serif";
+
+
+  ctx.textAlign =
+    "center";
+
+
+  ctx.fillText(
+    text,
+    p.x,
+    p.y + offsetY
+  );
+
+
+  ctx.restore();
+
+}
+
+
+
+/*
+======================================================
+DRAW
+======================================================
+*/
+
 function draw(){
- ctx.clearRect(0,0,1100,430);ctx.fillStyle="#fff";ctx.fillRect(0,0,1100,430);axes();let s=state(t),ss=signed(s);
- if(mode==="circ"){let c=map(0,0);ctx.strokeStyle="#b9b3aa";ctx.lineWidth=2;ctx.beginPath();ctx.arc(c.x,c.y,init.r*16,0,Math.PI*2);ctx.stroke()}
- history();
- if($("disp").checked){let q=state(0);arrow(q,{x:s.x-q.x,y:s.y-q.y},"Δr",5,"v")}
- if(!$("motion").checked&&$("vel").checked)vectorWithComponents(s,"v");
- if(!$("motion").checked&&$("acc").checked)vectorWithComponents(s,"a");
- if(!$("motion").checked&&$("vel").checked&&$("dvOptional").checked&&marks.length>1){let a=marks.at(-1),b=marks.at(-2);arrow(s,{x:a.vx-b.vx,y:a.vy-b.vy},"Δv",5,"v")}
- drawObject(s);$("rt").textContent=f(t)+" s";
- if(mode==="1d"){let P=one==="h"?ss.x:ss.y,V=one==="h"?ss.vx:ss.vy,A=one==="h"?ss.ax:ss.ay,z=signed(state(0)),P0=one==="h"?z.x:z.y;$("rp").textContent=f(P)+" m";$("rv").textContent=f(V)+" m/s";$("ra").textContent=f(A)+" m/s²";$("rd").textContent=f(P-P0)+" m"}
- else{let z=signed(state(0));$("rp").textContent=`(${f(ss.x)}, ${f(ss.y)}) m`;$("rv").textContent=`(${f(ss.vx)}, ${f(ss.vy)}) m/s`;$("ra").textContent=`(${f(ss.ax)}, ${f(ss.ay)}) m/s²`;$("rd").textContent=`(${f(ss.x-z.x)}, ${f(ss.y-z.y)}) m`}
- let labels=mode==="1d"?(one==="h"?["Position x (m)","Velocity vₓ (m/s)","Acceleration aₓ (m/s²)"]:["Position y (m)","Velocity vᵧ (m/s)","Acceleration aᵧ (m/s²)"]):mode==="2d"?["Vertical position y (m)","Vertical velocity vᵧ (m/s)","Vertical acceleration aᵧ (m/s²)"]:["Angular position θ (rad)","Speed (m/s)","Acceleration magnitude (m/s²)"];
- plot($("g1"),graph.p,labels[0]);plot($("g2"),graph.v,labels[1]);plot($("g3"),graph.a,labels[2]);
+
+  ctx.clearRect(
+    0,
+    0,
+    1100,
+    430
+  );
+
+
+  ctx.fillStyle =
+    "#ffffff";
+
+
+  ctx.fillRect(
+    0,
+    0,
+    1100,
+    430
+  );
+
+
+  axes();
+
+
+  const s =
+    state(t);
+
+
+  const ss =
+    signed(s);
+
+
+
+  /*
+    CIRCULAR PATH
+  */
+
+  if(
+    mode === "circ"
+  ){
+
+    const c =
+      map(
+        0,
+        0
+      );
+
+
+    ctx.save();
+
+
+    ctx.strokeStyle =
+      "#b9b3aa";
+
+
+    ctx.lineWidth =
+      2;
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+      c.x,
+      c.y,
+      init.r*16,
+      0,
+      Math.PI*2
+    );
+
+
+    ctx.stroke();
+
+
+    ctx.restore();
+
+  }
+
+
+
+  /*
+    HISTORICAL REPRESENTATIONS
+  */
+
+  history();
+
+
+
+  /*
+    LIVE DISPLACEMENT
+  */
+
+  if(
+    $("disp").checked
+  ){
+
+    const startState =
+      state(0);
+
+
+    arrow(
+      startState,
+      {
+        x:
+          s.x -
+          startState.x,
+
+        y:
+          s.y -
+          startState.y
+      },
+      "Δr",
+      5,
+      "v"
+    );
+
+  }
+
+
+
+  /*
+  ====================================================
+  LIVE VELOCITY
+
+  Always one live vector when checked.
+  Independent of Motion Diagram.
+  ====================================================
+  */
+
+  if(
+    $("vel").checked
+  ){
+
+    const vmag =
+      Math.hypot(
+        s.vx,
+        s.vy
+      );
+
+
+    if(
+      vmag > 1e-9
+    ){
+
+      vectorWithComponents(
+        s,
+        "v"
+      );
+
+    }
+
+    else{
+
+      drawZeroVectorLabel(
+        s,
+        "v = 0 m/s",
+        "#016895",
+        -42
+      );
+
+    }
+
+  }
+
+
+
+  /*
+  ====================================================
+  LIVE ACCELERATION
+
+  Always one live vector when checked.
+  Independent of Motion Diagram.
+  ====================================================
+  */
+
+  if(
+    $("acc").checked
+  ){
+
+    const amag =
+      Math.hypot(
+        s.ax,
+        s.ay
+      );
+
+
+    if(
+      amag > 1e-9
+    ){
+
+      vectorWithComponents(
+        s,
+        "a"
+      );
+
+    }
+
+    else{
+
+      drawZeroVectorLabel(
+        s,
+        "a = 0 m/s²",
+        "#8C1515",
+        42
+      );
+
+    }
+
+  }
+
+
+
+  /*
+    OPTIONAL LIVE DELTA-V
+  */
+
+  if(
+    !$("motion").checked &&
+    $("vel").checked &&
+    $("dvOptional").checked &&
+    marks.length > 1
+  ){
+
+    const currentMark =
+      marks[
+        marks.length-1
+      ];
+
+
+    const previousMark =
+      marks[
+        marks.length-2
+      ];
+
+
+    const dv = {
+
+      x:
+        currentMark.vx -
+        previousMark.vx,
+
+      y:
+        currentMark.vy -
+        previousMark.vy
+
+    };
+
+
+    const dvmag =
+      Math.hypot(
+        dv.x,
+        dv.y
+      );
+
+
+    if(
+      dvmag > 1e-9
+    ){
+
+      arrow(
+        s,
+        dv,
+        "Δv",
+        5,
+        "dv"
+      );
+
+    }
+
+  }
+
+
+
+  /*
+    DRAW OBJECT LAST
+  */
+
+  drawObject(s);
+
+
+
+  /*
+    READOUTS
+  */
+
+  $("rt").textContent =
+    f(t) +
+    " s";
+
+
+  if(
+    mode === "1d"
+  ){
+
+    const P =
+      one === "h"
+        ? ss.x
+        : ss.y;
+
+
+    const V =
+      one === "h"
+        ? ss.vx
+        : ss.vy;
+
+
+    const A =
+      one === "h"
+        ? ss.ax
+        : ss.ay;
+
+
+    const z =
+      signed(
+        state(0)
+      );
+
+
+    const P0 =
+      one === "h"
+        ? z.x
+        : z.y;
+
+
+    $("rp").textContent =
+      f(P) +
+      " m";
+
+
+    $("rv").textContent =
+      f(V) +
+      " m/s";
+
+
+    $("ra").textContent =
+      f(A) +
+      " m/s²";
+
+
+    $("rd").textContent =
+      f(P-P0) +
+      " m";
+
+  }
+
+
+  else{
+
+    const z =
+      signed(
+        state(0)
+      );
+
+
+    $("rp").textContent =
+      `(${f(ss.x)}, ${f(ss.y)}) m`;
+
+
+    $("rv").textContent =
+      `(${f(ss.vx)}, ${f(ss.vy)}) m/s`;
+
+
+    $("ra").textContent =
+      `(${f(ss.ax)}, ${f(ss.ay)}) m/s²`;
+
+
+    $("rd").textContent =
+      `(${f(ss.x-z.x)}, ${f(ss.y-z.y)}) m`;
+
+  }
+
+
+
+  /*
+    GRAPH LABELS
+  */
+
+  let labels;
+
+
+  if(
+    mode === "1d"
+  ){
+
+    labels =
+      one === "h"
+
+      ? [
+          "Position x (m)",
+          "Velocity vₓ (m/s)",
+          "Acceleration aₓ (m/s²)"
+        ]
+
+      : [
+          "Position y (m)",
+          "Velocity vᵧ (m/s)",
+          "Acceleration aᵧ (m/s²)"
+        ];
+
+  }
+
+
+  else if(
+    mode === "2d"
+  ){
+
+    labels = [
+
+      "Vertical position y (m)",
+
+      "Vertical velocity vᵧ (m/s)",
+
+      "Vertical acceleration aᵧ (m/s²)"
+
+    ];
+
+  }
+
+
+  else{
+
+    labels = [
+
+      "Angular position θ (rad)",
+
+      "Speed (m/s)",
+
+      "Acceleration magnitude (m/s²)"
+
+    ];
+
+  }
+
+
+  plot(
+    $("g1"),
+    graph.p,
+    labels[0]
+  );
+
+
+  plot(
+    $("g2"),
+    graph.v,
+    labels[1]
+  );
+
+
+  plot(
+    $("g3"),
+    graph.a,
+    labels[2]
+  );
+
 }
-function plot(c,data,label){
- let q=c.getContext("2d"),W=c.width,H=c.height,L=50,R=10,T=22,B=34;q.clearRect(0,0,W,H);q.fillStyle="#fff";q.fillRect(0,0,W,H);q.strokeStyle="#777";q.beginPath();q.moveTo(L,T);q.lineTo(L,H-B);q.lineTo(W-R,H-B);q.stroke();q.fillStyle="#544948";q.font="12px Source Sans 3,sans-serif";q.fillText("t (s)",W-36,H-9);q.save();q.translate(13,H/2+38);q.rotate(-Math.PI/2);q.fillText(label,0,0);q.restore();if(!data.length)return;
- let xmax=Math.max(1,data.at(-1)[0]),vs=data.map(d=>d[1]),mn=Math.min(0,...vs),mx=Math.max(0,...vs),sp=Math.max(.1,mx-mn),lo=mn-.08*sp,hi=mx+.08*sp,X=x=>L+x/xmax*(W-L-R),Y=y=>T+(hi-y)/(hi-lo)*(H-T-B);q.strokeStyle="#016895";q.lineWidth=2;q.beginPath();data.forEach((d,i)=>i?q.lineTo(X(d[0]),Y(d[1])):q.moveTo(X(d[0]),Y(d[1])));q.stroke();q.fillStyle="#766f6d";q.fillText(f(hi),L+3,T+10);q.fillText(f(lo),L+3,H-B-4);
+
+
+
+/*
+======================================================
+GRAPHS
+======================================================
+*/
+
+function plot(
+  c,
+  data,
+  label
+){
+
+  let q =
+    c.getContext("2d");
+
+
+  let W =
+    c.width;
+
+
+  let H =
+    c.height;
+
+
+  let L = 50;
+
+  let R = 10;
+
+  let T = 22;
+
+  let B = 34;
+
+
+  q.clearRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  q.fillStyle =
+    "#fff";
+
+
+  q.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  q.strokeStyle =
+    "#777";
+
+
+  q.beginPath();
+
+
+  q.moveTo(
+    L,
+    T
+  );
+
+
+  q.lineTo(
+    L,
+    H-B
+  );
+
+
+  q.lineTo(
+    W-R,
+    H-B
+  );
+
+
+  q.stroke();
+
+
+  q.fillStyle =
+    "#544948";
+
+
+  q.font =
+    "12px 'Source Sans 3', 'Source Sans Pro', sans-serif";
+
+
+  q.fillText(
+    "t (s)",
+    W-36,
+    H-9
+  );
+
+
+  q.save();
+
+
+  q.translate(
+    13,
+    H/2+38
+  );
+
+
+  q.rotate(
+    -Math.PI/2
+  );
+
+
+  q.fillText(
+    label,
+    0,
+    0
+  );
+
+
+  q.restore();
+
+
+  if(
+    !data.length
+  ){
+    return;
+  }
+
+
+  let xmax =
+    Math.max(
+      1,
+      data[
+        data.length-1
+      ][0]
+    );
+
+
+  let vs =
+    data.map(
+      d => d[1]
+    );
+
+
+  let mn =
+    Math.min(
+      0,
+      ...vs
+    );
+
+
+  let mx =
+    Math.max(
+      0,
+      ...vs
+    );
+
+
+  let sp =
+    Math.max(
+      .1,
+      mx-mn
+    );
+
+
+  let lo =
+    mn -
+    .08*sp;
+
+
+  let hi =
+    mx +
+    .08*sp;
+
+
+  const X =
+    x =>
+      L +
+      x/xmax *
+      (
+        W-L-R
+      );
+
+
+  const Y =
+    y =>
+      T +
+      (
+        hi-y
+      ) /
+      (
+        hi-lo
+      ) *
+      (
+        H-T-B
+      );
+
+
+  q.strokeStyle =
+    "#016895";
+
+
+  q.lineWidth =
+    2;
+
+
+  q.beginPath();
+
+
+  data.forEach(
+    (d,i) => {
+
+      if(
+        i
+      ){
+
+        q.lineTo(
+          X(d[0]),
+          Y(d[1])
+        );
+
+      }
+
+      else{
+
+        q.moveTo(
+          X(d[0]),
+          Y(d[1])
+        );
+
+      }
+
+    }
+  );
+
+
+  q.stroke();
+
+
+  q.fillStyle =
+    "#766f6d";
+
+
+  q.fillText(
+    f(hi),
+    L+3,
+    T+10
+  );
+
+
+  q.fillText(
+    f(lo),
+    L+3,
+    H-B-4
+  );
+
 }
-stage.onclick=e=>{let r=stage.getBoundingClientRect(),x=(e.clientX-r.left)*1100/r.width,y=(e.clientY-r.top)*430/r.height;
- if(mode==="1d"&&one==="h"&&(x<120||x>980)&&y>175&&y<270){sign.x*=-1;draw()}
- else if(mode==="1d"&&one==="v"&&x>520&&x<620&&(y<90||y>335)){sign.y*=-1;draw()}
- else if(mode!=="1d"){let O=map(0,0);if((x<130||x>970)&&Math.abs(y-O.y)<45){sign.x*=-1;draw()}else if(Math.abs(x-O.x)<65&&(y<90||y>340)){sign.y*=-1;draw()}}
-};
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(z=>z.classList.remove("active"));b.classList.add("active");mode=b.dataset.mode;buildInputs()});
-document.querySelectorAll(".subtab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".subtab").forEach(z=>z.classList.remove("active"));b.classList.add("active");one=b.dataset.one;buildInputs()});
-document.querySelectorAll(".object").forEach(b=>b.onclick=()=>{document.querySelectorAll(".object").forEach(z=>z.classList.remove("active"));b.classList.add("active");object=b.dataset.object;draw()});
-document.querySelectorAll(".speed button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".speed button").forEach(z=>z.classList.remove("active"));b.classList.add("active");rate=+b.dataset.rate});
-["dots","vel","acc","disp","components","motion","dvOptional"].forEach(id=>$(id).onchange=()=>{$("velExtra").style.display=$("vel").checked&&!$("motion").checked?"block":"none";$("motionExtra").style.display=$("motion").checked?"block":"none";draw()});
-document.querySelectorAll('input[name="motionChange"]').forEach(e=>e.onchange=draw);
-$("gravity").onchange=configure;$("start").onclick=start;$("stop").onclick=stop;$("step").onclick=step;$("reset").onclick=reset;
+
+
+
+/*
+======================================================
+CLICK AXIS TO CHANGE SIGN CONVENTION
+======================================================
+*/
+
+stage.onclick =
+  e => {
+
+    let r =
+      stage.getBoundingClientRect();
+
+
+    let x =
+      (
+        e.clientX -
+        r.left
+      ) *
+      1100 /
+      r.width;
+
+
+    let y =
+      (
+        e.clientY -
+        r.top
+      ) *
+      430 /
+      r.height;
+
+
+    if(
+      mode === "1d" &&
+      one === "h" &&
+      (
+        x < 120 ||
+        x > 980
+      ) &&
+      y > 175 &&
+      y < 270
+    ){
+
+      sign.x *= -1;
+
+      draw();
+
+    }
+
+
+    else if(
+      mode === "1d" &&
+      one === "v" &&
+      x > 520 &&
+      x < 620 &&
+      (
+        y < 90 ||
+        y > 335
+      )
+    ){
+
+      sign.y *= -1;
+
+      draw();
+
+    }
+
+
+    else if(
+      mode !== "1d"
+    ){
+
+      let O =
+        map(
+          0,
+          0
+        );
+
+
+      if(
+        (
+          x < 130 ||
+          x > 970
+        ) &&
+        Math.abs(
+          y-O.y
+        ) < 45
+      ){
+
+        sign.x *= -1;
+
+        draw();
+
+      }
+
+
+      else if(
+        Math.abs(
+          x-O.x
+        ) < 65 &&
+        (
+          y < 90 ||
+          y > 340
+        )
+      ){
+
+        sign.y *= -1;
+
+        draw();
+
+      }
+
+    }
+
+  };
+
+
+
+/*
+======================================================
+BUTTON EVENTS
+======================================================
+*/
+
+document
+.querySelectorAll(
+  ".tab"
+)
+.forEach(
+  b => {
+
+    b.onclick =
+      () => {
+
+        document
+        .querySelectorAll(
+          ".tab"
+        )
+        .forEach(
+          z =>
+            z.classList.remove(
+              "active"
+            )
+        );
+
+
+        b.classList.add(
+          "active"
+        );
+
+
+        mode =
+          b.dataset.mode;
+
+
+        buildInputs();
+
+      };
+
+  }
+);
+
+
+
+document
+.querySelectorAll(
+  ".subtab"
+)
+.forEach(
+  b => {
+
+    b.onclick =
+      () => {
+
+        document
+        .querySelectorAll(
+          ".subtab"
+        )
+        .forEach(
+          z =>
+            z.classList.remove(
+              "active"
+            )
+        );
+
+
+        b.classList.add(
+          "active"
+        );
+
+
+        one =
+          b.dataset.one;
+
+
+        buildInputs();
+
+      };
+
+  }
+);
+
+
+
+document
+.querySelectorAll(
+  ".object"
+)
+.forEach(
+  b => {
+
+    b.onclick =
+      () => {
+
+        document
+        .querySelectorAll(
+          ".object"
+        )
+        .forEach(
+          z =>
+            z.classList.remove(
+              "active"
+            )
+        );
+
+
+        b.classList.add(
+          "active"
+        );
+
+
+        object =
+          b.dataset.object;
+
+
+        draw();
+
+      };
+
+  }
+);
+
+
+
+document
+.querySelectorAll(
+  ".speed button"
+)
+.forEach(
+  b => {
+
+    b.onclick =
+      () => {
+
+        document
+        .querySelectorAll(
+          ".speed button"
+        )
+        .forEach(
+          z =>
+            z.classList.remove(
+              "active"
+            )
+        );
+
+
+        b.classList.add(
+          "active"
+        );
+
+
+        rate =
+          +b.dataset.rate;
+
+      };
+
+  }
+);
+
+
+
+[
+  "dots",
+  "vel",
+  "acc",
+  "disp",
+  "components",
+  "motion",
+  "dvOptional"
+]
+.forEach(
+  id => {
+
+    $(id).onchange =
+      () => {
+
+        $("velExtra").style.display =
+          $("vel").checked &&
+          !$("motion").checked
+
+            ? "block"
+
+            : "none";
+
+
+        $("motionExtra").style.display =
+          $("motion").checked
+
+            ? "block"
+
+            : "none";
+
+
+        draw();
+
+      };
+
+  }
+);
+
+
+
+document
+.querySelectorAll(
+  'input[name="motionChange"]'
+)
+.forEach(
+  e =>
+    e.onchange =
+      draw
+);
+
+
+
+$("gravity").onchange =
+  configure;
+
+
+$("start").onclick =
+  start;
+
+
+$("stop").onclick =
+  stop;
+
+
+$("step").onclick =
+  step;
+
+
+$("reset").onclick =
+  reset;
+
+
+
+/*
+======================================================
+INITIALIZE
+======================================================
+*/
+
 buildInputs();
-</script></body></html>
+
+</script>
+
+</body>
+</html>
