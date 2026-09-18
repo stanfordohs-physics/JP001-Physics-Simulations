@@ -783,6 +783,8 @@ let graph = {
 
 let lastGraph = -1e9;
 
+let dragging = false;
+let dragMoved = false;
 
 const markDt = .5;
 
@@ -1317,10 +1319,8 @@ function configure(){
       : "none";
 
 
-  $("gravBlock").style.display =
-    needsG()
-      ? "block"
-      : "none";
+  // Keep the planet / astronomical-object selector visible.
+  $("gravBlock").style.display = "block";
 
 
   $("compLabel").style.display =
@@ -1718,6 +1718,41 @@ function map(
 
 
 
+/*
+======================================================
+DRAG TO SET INITIAL POSITION
+======================================================
+*/
+function stagePoint(e){
+  const r=stage.getBoundingClientRect();
+  return {
+    x:(e.clientX-r.left)*stage.width/r.width,
+    y:(e.clientY-r.top)*stage.height/r.height
+  };
+}
+
+function pointNearObject(p){
+  const s=state(t), q=map(s.x,s.y);
+  return Math.hypot(p.x-q.x,p.y-q.y)<=42;
+}
+
+function dragPositionFromCanvas(p){
+  if(mode==="1d" && one==="h"){
+    const x=((p.x-90)/920)*60-20;
+    $("x0").value=Math.max(-20,Math.min(40,x)).toFixed(2);
+  } else if(mode==="1d" && one==="v"){
+    const y=((365-p.y)/300)*40;
+    $("y0").value=Math.max(0,Math.min(40,y)).toFixed(2);
+  } else if(mode==="2d"){
+    const x=((p.x-90)/920)*70-10;
+    const y=((365-p.y)/300)*40;
+    $("x0").value=Math.max(-10,Math.min(60,x)).toFixed(2);
+    $("y0").value=Math.max(0,Math.min(40,y)).toFixed(2);
+  } else return;
+  reset();
+}
+
+
 function arrow(
   base,
   vec,
@@ -1756,6 +1791,14 @@ function arrow(
       dy
     );
 
+  // Keep a small nonzero acceleration arrow visible.
+  if(kind === "a" && L > 0 && L < 30){
+    const k=30/L;
+    dx*=k;
+    dy*=k;
+    q={x:p.x+dx,y:p.y+dy};
+    L=30;
+  }
 
   if(
     L < 2
@@ -2747,6 +2790,12 @@ function draw(){
 
 
   /*
+    Draw object before live vectors so short arrows remain visible.
+  */
+  drawObject(s);
+
+
+  /*
   ====================================================
   LIVE VELOCITY
 
@@ -2896,14 +2945,6 @@ function draw(){
     }
 
   }
-
-
-
-  /*
-    DRAW OBJECT LAST
-  */
-
-  drawObject(s);
 
 
 
@@ -3348,115 +3389,78 @@ CLICK AXIS TO CHANGE SIGN CONVENTION
 ======================================================
 */
 
-stage.onclick =
-  e => {
+function handleAxisClick(e){
+  const p=stagePoint(e), x=p.x, y=p.y;
 
-    let r =
-      stage.getBoundingClientRect();
-
-
-    let x =
-      (
-        e.clientX -
-        r.left
-      ) *
-      1100 /
-      r.width;
-
-
-    let y =
-      (
-        e.clientY -
-        r.top
-      ) *
-      430 /
-      r.height;
-
-
-    if(
-      mode === "1d" &&
-      one === "h" &&
-      (
-        x < 120 ||
-        x > 980
-      ) &&
-      y > 175 &&
-      y < 270
-    ){
-
-      sign.x *= -1;
-
+  if(mode==="1d" && one==="h" &&
+     (x<120 || x>980) && y>175 && y<270){
+    sign.x*=-1;
+    draw();
+  }
+  else if(mode==="1d" && one==="v" &&
+          x>520 && x<620 && (y<90 || y>335)){
+    sign.y*=-1;
+    draw();
+  }
+  else if(mode!=="1d"){
+    const O=map(0,0);
+    if((x<130 || x>970) && Math.abs(y-O.y)<45){
+      sign.x*=-1;
       draw();
-
     }
-
-
-    else if(
-      mode === "1d" &&
-      one === "v" &&
-      x > 520 &&
-      x < 620 &&
-      (
-        y < 90 ||
-        y > 335
-      )
-    ){
-
-      sign.y *= -1;
-
+    else if(Math.abs(x-O.x)<65 && (y<90 || y>340)){
+      sign.y*=-1;
       draw();
-
     }
+  }
+}
 
+stage.addEventListener("pointerdown",e=>{
+  if(running || mode==="circ") return;
+  const p=stagePoint(e);
+  if(pointNearObject(p)){
+    dragging=true;
+    dragMoved=false;
+    stage.setPointerCapture(e.pointerId);
+    stage.style.cursor="grabbing";
+    e.preventDefault();
+  }
+});
 
-    else if(
-      mode !== "1d"
-    ){
+stage.addEventListener("pointermove",e=>{
+  if(dragging){
+    dragMoved=true;
+    dragPositionFromCanvas(stagePoint(e));
+    e.preventDefault();
+    return;
+  }
+  if(!running && mode!=="circ"){
+    stage.style.cursor=pointNearObject(stagePoint(e))?"grab":"default";
+  } else {
+    stage.style.cursor="default";
+  }
+});
 
-      let O =
-        map(
-          0,
-          0
-        );
+stage.addEventListener("pointerup",e=>{
+  if(!dragging) return;
+  dragging=false;
+  stage.style.cursor="grab";
+  if(stage.hasPointerCapture(e.pointerId)) stage.releasePointerCapture(e.pointerId);
+  e.preventDefault();
+});
 
+stage.addEventListener("pointercancel",()=>{
+  dragging=false;
+  stage.style.cursor="default";
+});
 
-      if(
-        (
-          x < 130 ||
-          x > 970
-        ) &&
-        Math.abs(
-          y-O.y
-        ) < 45
-      ){
-
-        sign.x *= -1;
-
-        draw();
-
-      }
-
-
-      else if(
-        Math.abs(
-          x-O.x
-        ) < 65 &&
-        (
-          y < 90 ||
-          y > 340
-        )
-      ){
-
-        sign.y *= -1;
-
-        draw();
-
-      }
-
-    }
-
-  };
-
+stage.addEventListener("click",e=>{
+  if(dragMoved){
+    dragMoved=false;
+    return;
+  }
+  handleAxisClick(e);
+});
 
 
 /*
