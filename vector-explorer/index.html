@@ -88,13 +88,20 @@
     stroke: #016895;
     stroke-width: 4;
     stroke-linecap: round;
-}
- .component {
-  display: none !important;
-}
-<circle id="endpoint"
-        r="12"
-        style="fill: transparent !important; stroke: none; cursor: grab; pointer-events: all;"/>
+  }
+
+  /* Component lines are hidden for now. */
+  .component {
+    display: none;
+  }
+
+  /* Invisible draggable area around the arrowhead. */
+  .endpoint {
+    fill: transparent;
+    stroke: none;
+    cursor: grab;
+    pointer-events: all;
+  }
 
   .control {
     margin-bottom: 24px;
@@ -223,23 +230,21 @@
          aria-label="Interactive coordinate plane showing a vector">
 
       <defs>
-     <marker id="arrowhead"
-        markerWidth="12"
-        markerHeight="12"
-        refX="10"
-        refY="5"
-        orient="auto"
-        markerUnits="userSpaceOnUse">
-  <path d="M0,0 L10,5 L0,10 Z"
-        fill="#016895"/>
-</marker>
+        <marker id="arrowhead"
+                markerWidth="12"
+                markerHeight="12"
+                refX="10"
+                refY="5"
+                orient="auto"
+                markerUnits="userSpaceOnUse">
+          <path d="M0,0 L10,5 L0,10 Z"
+                fill="#016895"/>
+        </marker>
       </defs>
 
       <g id="grid"></g>
 
-    <circle id="endpoint"
-        r="12"
-        style="fill: transparent; stroke: none; cursor: grab; pointer-events: all;"/>
+      <!-- Coordinate axes -->
 
       <line x1="15" y1="200"
             x2="385" y2="200"
@@ -261,25 +266,31 @@
       <text x="208" y="385"
             class="axis-label">S</text>
 
+      <!-- Hidden vector components -->
+
       <line id="horizontalComponent"
             class="component"/>
 
       <line id="verticalComponent"
             class="component"/>
 
+      <!-- Main vector -->
+
       <line id="vector"
             class="vector"
             marker-end="url(#arrowhead)"/>
+
+      <!-- Origin -->
 
       <circle cx="200" cy="200"
               r="4"
               fill="#544948"/>
 
-     <circle id="endpoint"
-        class="endpoint"
-        r="12"
-        fill="transparent"
-        stroke="none"/>
+      <!-- Invisible draggable endpoint -->
+
+      <circle id="endpoint"
+              class="endpoint"
+              r="12"/>
 
       <text x="208" y="217"
             class="axis-label">Origin</text>
@@ -407,6 +418,7 @@
   const scale = 30;
 
   // Draw coordinate grid.
+
   const grid = document.getElementById("grid");
 
   for (let i = 20; i <= 380; i += 30) {
@@ -493,6 +505,7 @@
     });
 
   // Allow the arrowhead to be dragged directly.
+
   let dragging = false;
 
   endpoint.addEventListener("pointerdown", function (event) {
