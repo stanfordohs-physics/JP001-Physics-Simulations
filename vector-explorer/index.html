@@ -1,0 +1,552 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JP001 Interactive Vector Explorer</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 20px;
+    background: #fffbf5;
+    color: #544948;
+    font-family: "Source Sans 3", "Source Sans Pro",
+      "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    border-bottom: 3px solid #8c1515;
+    padding-bottom: 15px;
+    margin-bottom: 22px;
+  }
+
+  h1 {
+    color: #8c1515;
+    font-size: 27px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: #7a716f;
+    margin-top: 5px;
+  }
+
+  .panel {
+    background: white;
+    border: 1px solid #dad7cb;
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 16px;
+  }
+
+  .instruction {
+    margin: 0 0 15px;
+    text-align: center;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    max-width: 460px;
+    height: auto;
+    margin: 0 auto;
+    touch-action: none;
+    cursor: crosshair;
+  }
+
+  .grid-line {
+    stroke: #dad7cb;
+    stroke-width: 0.7;
+  }
+
+  .axis {
+    stroke: #544948;
+    stroke-width: 1.5;
+  }
+
+  .axis-label {
+    fill: #544948;
+    font-size: 12px;
+  }
+
+  .vector {
+    stroke: #016895;
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+
+  .component {
+    stroke: #175e54;
+    stroke-width: 2;
+    stroke-dasharray: 5 5;
+  }
+
+  .endpoint {
+    fill: #016895;
+    cursor: grab;
+  }
+
+  .control {
+    margin-bottom: 24px;
+  }
+
+  .control:last-child {
+    margin-bottom: 0;
+  }
+
+  .control-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .value {
+    color: #016895;
+    font-size: 20px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    accent-color: #016895;
+    cursor: pointer;
+  }
+
+  .directions {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: #7a716f;
+  }
+
+  .results {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .result {
+    background: #eef4f8;
+    border: 1px solid #d8e5eb;
+    border-radius: 12px;
+    padding: 15px;
+  }
+
+  .result-label {
+    font-size: 13px;
+    color: #544948;
+  }
+
+  .result-value {
+    color: #016895;
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dad7cb;
+    border-radius: 10px;
+    background: white;
+    color: #544948;
+    font: inherit;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+
+  button:hover {
+    background: #f5f2ed;
+  }
+
+  button:focus-visible,
+  input:focus-visible {
+    outline: 3px solid #016895;
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 480px) {
+    body {
+      padding: 12px;
+    }
+
+    .panel {
+      padding: 14px;
+    }
+
+    h1 {
+      font-size: 23px;
+    }
+
+    .result-value {
+      font-size: 18px;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <header>
+    <h1>Interactive Vector Explorer</h1>
+    <div class="subtitle">
+      JP001 · Inquiry Based Physics
+    </div>
+  </header>
+
+  <div class="panel">
+
+    <p class="instruction">
+      Change the direction and magnitude of the vector.
+      You can also drag the arrowhead.
+    </p>
+
+    <svg id="vectorGraph"
+         viewBox="0 0 400 400"
+         role="img"
+         aria-label="Interactive coordinate plane showing a vector">
+
+      <defs>
+        <marker id="arrowhead"
+                markerWidth="8"
+                markerHeight="8"
+                refX="6"
+                refY="3"
+                orient="auto"
+                markerUnits="userSpaceOnUse">
+          <path d="M0,0 L6,3 L0,6 Z"
+                fill="#016895"/>
+        </marker>
+      </defs>
+
+      <g id="grid"></g>
+
+      <circle cx="200" cy="200" r="150"
+              fill="none"
+              stroke="#dad7cb"
+              stroke-dasharray="4 5"/>
+
+      <line x1="15" y1="200"
+            x2="385" y2="200"
+            class="axis"/>
+
+      <line x1="200" y1="385"
+            x2="200" y2="15"
+            class="axis"/>
+
+      <text x="380" y="190"
+            class="axis-label">E</text>
+
+      <text x="208" y="20"
+            class="axis-label">N</text>
+
+      <text x="18" y="190"
+            class="axis-label">W</text>
+
+      <text x="208" y="385"
+            class="axis-label">S</text>
+
+      <line id="horizontalComponent"
+            class="component"/>
+
+      <line id="verticalComponent"
+            class="component"/>
+
+      <line id="vector"
+            class="vector"
+            marker-end="url(#arrowhead)"/>
+
+      <circle cx="200" cy="200"
+              r="4"
+              fill="#544948"/>
+
+      <circle id="endpoint"
+              class="endpoint"
+              r="8"/>
+
+      <text x="208" y="217"
+            class="axis-label">Origin</text>
+
+    </svg>
+
+  </div>
+
+  <div class="panel">
+
+    <div class="control">
+      <div class="control-heading">
+        <label for="angle">
+          Direction
+        </label>
+        <span class="value" id="angleValue">
+          45°
+        </span>
+      </div>
+
+      <input id="angle"
+             type="range"
+             min="0"
+             max="360"
+             step="1"
+             value="45">
+
+      <div class="directions">
+        <span>0° East</span>
+        <span>90° North</span>
+        <span>180° West</span>
+        <span>270° South</span>
+        <span>360° East</span>
+      </div>
+    </div>
+
+    <div class="control">
+      <div class="control-heading">
+        <label for="magnitude">
+          Magnitude
+        </label>
+        <span class="value" id="magnitudeValue">
+          4 m
+        </span>
+      </div>
+
+      <input id="magnitude"
+             type="range"
+             min="0"
+             max="5"
+             step="0.1"
+             value="4">
+    </div>
+
+  </div>
+
+  <div class="panel">
+
+    <div class="results">
+
+      <div class="result">
+        <div class="result-label">
+          Horizontal component (x)
+        </div>
+        <div class="result-value" id="xValue">
+          2.83 m
+        </div>
+      </div>
+
+      <div class="result">
+        <div class="result-label">
+          Vertical component (y)
+        </div>
+        <div class="result-value" id="yValue">
+          2.83 m
+        </div>
+      </div>
+
+    </div>
+
+    <button id="resetButton" type="button">
+      Reset Vector
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+  const angleSlider =
+    document.getElementById("angle");
+
+  const magnitudeSlider =
+    document.getElementById("magnitude");
+
+  const angleValue =
+    document.getElementById("angleValue");
+
+  const magnitudeValue =
+    document.getElementById("magnitudeValue");
+
+  const xValue =
+    document.getElementById("xValue");
+
+  const yValue =
+    document.getElementById("yValue");
+
+  const vector =
+    document.getElementById("vector");
+
+  const endpoint =
+    document.getElementById("endpoint");
+
+  const horizontalComponent =
+    document.getElementById("horizontalComponent");
+
+  const verticalComponent =
+    document.getElementById("verticalComponent");
+
+  const svg =
+    document.getElementById("vectorGraph");
+
+  const originX = 200;
+  const originY = 200;
+  const scale = 30;
+
+  // Draw coordinate grid.
+  const grid = document.getElementById("grid");
+
+  for (let i = 20; i <= 380; i += 30) {
+    const vertical = document.createElementNS(
+      "http://www.w3.org/2000/svg", "line"
+    );
+
+    vertical.setAttribute("x1", i);
+    vertical.setAttribute("y1", 20);
+    vertical.setAttribute("x2", i);
+    vertical.setAttribute("y2", 380);
+    vertical.setAttribute("class", "grid-line");
+
+    grid.appendChild(vertical);
+
+    const horizontal = document.createElementNS(
+      "http://www.w3.org/2000/svg", "line"
+    );
+
+    horizontal.setAttribute("x1", 20);
+    horizontal.setAttribute("y1", i);
+    horizontal.setAttribute("x2", 380);
+    horizontal.setAttribute("y2", i);
+    horizontal.setAttribute("class", "grid-line");
+
+    grid.appendChild(horizontal);
+  }
+
+  function formatNumber(value) {
+    // Avoid displaying -0.00 due to rounding.
+    if (Math.abs(value) < 0.005) {
+      return "0.00";
+    }
+    return value.toFixed(2);
+  }
+
+  function updateVector() {
+
+    const angle = Number(angleSlider.value);
+    const magnitude = Number(magnitudeSlider.value);
+
+    const radians = angle * Math.PI / 180;
+
+    const x = magnitude * Math.cos(radians);
+    const y = magnitude * Math.sin(radians);
+
+    const endX = originX + x * scale;
+    const endY = originY - y * scale;
+
+    vector.setAttribute("x1", originX);
+    vector.setAttribute("y1", originY);
+    vector.setAttribute("x2", endX);
+    vector.setAttribute("y2", endY);
+
+    endpoint.setAttribute("cx", endX);
+    endpoint.setAttribute("cy", endY);
+
+    horizontalComponent.setAttribute("x1", originX);
+    horizontalComponent.setAttribute("y1", originY);
+    horizontalComponent.setAttribute("x2", endX);
+    horizontalComponent.setAttribute("y2", originY);
+
+    verticalComponent.setAttribute("x1", endX);
+    verticalComponent.setAttribute("y1", originY);
+    verticalComponent.setAttribute("x2", endX);
+    verticalComponent.setAttribute("y2", endY);
+
+    angleValue.textContent = angle + "°";
+    magnitudeValue.textContent =
+      magnitude.toFixed(1) + " m";
+
+    xValue.textContent = formatNumber(x) + " m";
+    yValue.textContent = formatNumber(y) + " m";
+  }
+
+  angleSlider.addEventListener("input", updateVector);
+  magnitudeSlider.addEventListener("input", updateVector);
+
+  document.getElementById("resetButton")
+    .addEventListener("click", function () {
+      angleSlider.value = 45;
+      magnitudeSlider.value = 4;
+      updateVector();
+    });
+
+  // Allow the arrowhead to be dragged directly.
+  let dragging = false;
+
+  endpoint.addEventListener("pointerdown", function (event) {
+    dragging = true;
+    svg.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  });
+
+  svg.addEventListener("pointermove", function (event) {
+    if (!dragging) return;
+
+    const point = svg.createSVGPoint();
+    point.x = event.clientX;
+    point.y = event.clientY;
+
+    const matrix = svg.getScreenCTM();
+    if (!matrix) return;
+
+    const localPoint = point.matrixTransform(
+      matrix.inverse()
+    );
+
+    const dx = localPoint.x - originX;
+    const dy = originY - localPoint.y;
+
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+    if (angle < 0) {
+      angle += 360;
+    }
+
+    angleSlider.value = Math.round(angle);
+    magnitudeSlider.value =
+      Math.min(5, distance / scale).toFixed(1);
+
+    updateVector();
+  });
+
+  function stopDragging() {
+    dragging = false;
+  }
+
+  svg.addEventListener("pointerup", stopDragging);
+  svg.addEventListener("pointercancel", stopDragging);
+  svg.addEventListener("lostpointercapture", stopDragging);
+
+  updateVector();
+</script>
+
+</body>
+</html>
