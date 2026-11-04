@@ -11,7 +11,7 @@
   --blue: #016895;
   --green: #276749;
   --purple: #65458b;
-  --mustard: #b58b24;
+  --mustard: #e5a000;
   --ink: #293c4c;
 }
 
@@ -174,7 +174,7 @@ button.active {
 }
 
 .rocket-symbol.left {
-  transform: rotate(225deg);
+  transform: scaleX(-1) rotate(45deg);
 }
 
 .status {
@@ -641,7 +641,6 @@ button.active {
     const percent=50+(x/LIMIT)*43.75;
     $("rocket").style.left=percent+"%";
 
-    // Direction follows velocity, not acceleration.
     if(v>0.0001) facing=1;
     else if(v< -0.0001) facing=-1;
 
@@ -650,7 +649,7 @@ button.active {
 
     graph("gx","x",-10,10,"#016895","Position (m)");
     graph("gv","v",-10,10,"#276749","Velocity (m/s)");
-    graph("ga","a",-3,3,"#b58b24","Acceleration (m/s²)");
+    graph("ga","a",-3,3,"#e5a000","Acceleration (m/s²)");
   }
 
   function tick(now) {
