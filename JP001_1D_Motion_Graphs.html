@@ -1,58 +1,66 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JP001 — One-Dimensional Motion Explorer</title>
+<title>JP001 | One-Dimensional Motion Explorer</title>
 
 <style>
+:root {
+  --cardinal: #8c1515;
+  --blue: #016895;
+  --green: #276749;
+  --purple: #65458b;
+  --gold: #a66b19;
+  --ink: #293c4c;
+}
+
 * { box-sizing: border-box; }
 
 html, body {
-  width: 100%;
-  min-height: 100%;
   margin: 0;
   padding: 0;
+  width: 100%;
+  min-height: 100%;
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  background: #ffffff;
-  color: #293c4c;
+  font-family: "Source Sans 3", Arial, sans-serif;
+  color: var(--ink);
+  background: white;
 }
 
 main {
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 14px 2vw 24px;
+  padding: 12px 1.2vw 24px;
 }
 
 header {
-  border-bottom: 4px solid #8c1515;
-  padding: 4px 0 12px;
+  text-align: center;
+  border-bottom: 4px solid var(--cardinal);
+  padding-bottom: 12px;
   margin-bottom: 14px;
 }
 
 h1 {
   margin: 0;
-  color: #8c1515;
-  font-size: clamp(30px, 2.5vw, 48px);
+  color: var(--cardinal);
+  font-size: clamp(32px, 3vw, 54px);
 }
 
 header p {
-  font-size: clamp(17px, 1.25vw, 24px);
-  margin: 5px 0 0;
-  color: #526171;
+  margin: 4px 0;
+  font-size: clamp(18px, 1.4vw, 25px);
 }
 
 .instructions {
   background: #edf4f9;
-  border-left: 6px solid #016895;
-  border-radius: 10px;
-  padding: 13px 20px;
-  font-size: clamp(17px, 1.3vw, 24px);
+  border-left: 6px solid var(--blue);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: clamp(18px, 1.35vw, 25px);
   margin-bottom: 14px;
 }
 
@@ -64,40 +72,39 @@ header p {
 }
 
 button {
-  font-size: clamp(17px, 1.2vw, 24px);
-  font-weight: bold;
-  border: 2px solid #b8c7d3;
-  border-radius: 10px;
+  font: inherit;
+  font-size: clamp(18px, 1.25vw, 25px);
+  font-weight: 700;
+  min-height: 58px;
+  padding: 12px 20px;
   background: white;
+  border: 2px solid #aebfcf;
+  border-radius: 12px;
   color: #263b4d;
-  padding: 14px 20px;
-  min-height: 56px;
   cursor: pointer;
 }
 
-button:hover {
-  background: #edf4f9;
-}
+button:hover { background: #edf4f9; }
 
 button:focus-visible {
   outline: 4px solid #d69f35;
 }
 
 button.primary {
-  background: #016895;
+  background: var(--blue);
   color: white;
-  border-color: #016895;
+  border-color: var(--blue);
 }
 
 button.active {
   background: #e2f0e6;
-  border-color: #276749;
-  color: #205b3a;
+  border-color: var(--green);
+  color: var(--green);
 }
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0,1fr));
   gap: 14px;
   margin-bottom: 14px;
 }
@@ -105,106 +112,157 @@ button.active {
 .metric {
   background: #f0ecf8;
   border-radius: 12px;
-  padding: 13px 18px;
+  padding: 14px 20px;
 }
 
 .metric strong {
   display: block;
-  color: #65458b;
-  font-size: clamp(17px, 1.25vw, 24px);
+  color: var(--purple);
+  font-size: clamp(18px, 1.4vw, 26px);
 }
 
 .metric span {
   display: block;
-  font-size: clamp(23px, 1.8vw, 36px);
+  font-size: clamp(26px, 2vw, 40px);
   font-variant-numeric: tabular-nums;
 }
 
+/* LARGE ROCKET TRACK */
+
 .track-box {
-  background: linear-gradient(#f5faff, #e7f2f9);
+  position: relative;
+  width: 100%;
+  height: clamp(320px, 36vh, 520px);
   border: 2px solid #cad7e0;
-  border-radius: 14px;
-  padding: 10px 15px;
+  border-radius: 16px;
+  background: linear-gradient(#f5faff,#e7f2f9);
+  overflow: hidden;
 }
 
 .track-box svg {
-  display: block;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: clamp(260px, 26vh, 430px);
+  height: 100%;
+}
+
+/*
+  The rocket is an actual emoji text element,
+  NOT an SVG drawing.
+*/
+.rocket {
+  position: absolute;
+  left: 50%;
+  top: 43%;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Apple Color Emoji",
+               "Segoe UI Emoji",
+               "Noto Color Emoji",
+               sans-serif;
+  font-size: clamp(100px, 10vw, 160px);
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  transform: translate(-50%,-50%);
+  will-change: left;
+}
+
+.rocket-symbol {
+  display: block;
+  transform-origin: center;
+}
+
+/*
+  Standard rocket emoji points diagonally up-right.
+  Rotate clockwise to face right.
+  Left-facing rocket uses a further 180-degree turn.
+*/
+.rocket-symbol.right {
+  transform: rotate(45deg);
+}
+
+.rocket-symbol.left {
+  transform: rotate(225deg);
 }
 
 .status {
   background: #fff0d7;
-  border-left: 6px solid #a66b19;
-  border-radius: 10px;
-  padding: 13px 18px;
+  border-left: 6px solid var(--gold);
+  border-radius: 12px;
+  padding: 14px 20px;
   margin: 14px 0;
-  font-size: clamp(17px, 1.25vw, 23px);
+  font-size: clamp(18px, 1.3vw, 25px);
 }
+
+/* LARGE GRAPHS */
 
 .graphs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3,minmax(0,1fr));
   gap: 16px;
   width: 100%;
 }
 
 .graph {
   min-width: 0;
-  background: #ffffff;
   border: 2px solid #cfdadf;
-  border-radius: 14px;
+  border-radius: 15px;
   overflow: hidden;
+  background: white;
 }
 
 .graph h2 {
-  margin: 0;
-  padding: 14px 18px;
   background: #e7f2e9;
-  color: #276749;
-  font-size: clamp(20px, 1.5vw, 29px);
+  color: var(--green);
+  padding: 14px 18px;
+  margin: 0;
+  font-size: clamp(22px, 1.6vw, 32px);
 }
 
 .graph svg {
   display: block;
   width: 100%;
-  height: clamp(420px, 44vh, 700px);
-}
-
-.footer {
-  margin-top: 14px;
-  color: #526171;
-  font-size: clamp(16px, 1.1vw, 21px);
+  height: clamp(460px, 49vh, 760px);
 }
 
 .gridline {
   stroke: #e0e8ee;
-  stroke-width: 1.2;
+  stroke-width: 1.4;
 }
 
 .axis {
   stroke: #536a7b;
-  stroke-width: 2.5;
+  stroke-width: 2.8;
 }
 
 .plot {
   fill: none;
-  stroke-width: 5;
+  stroke-width: 5.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-@media (max-width: 900px) {
+.footer {
+  font-size: clamp(17px, 1.2vw, 23px);
+  color: #526171;
+  margin-top: 14px;
+}
+
+@media (max-width: 950px) {
   .graphs {
     grid-template-columns: 1fr;
   }
 
   .graph svg {
-    height: 450px;
+    height: 480px;
   }
 
   .metrics {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2,1fr);
   }
 }
 
@@ -215,8 +273,12 @@ button.active {
     flex: 1 1 45%;
   }
 
-  .track-box svg {
-    height: 260px;
+  .track-box { height: 300px; }
+
+  .rocket {
+    width: 115px;
+    height: 115px;
+    font-size: 105px;
   }
 }
 </style>
@@ -250,61 +312,65 @@ button.active {
     <strong>Time</strong>
     <span id="time">0.00 s</span>
   </div>
+
   <div class="metric">
     <strong>Position</strong>
     <span id="position">0.00 m</span>
   </div>
+
   <div class="metric">
     <strong>Velocity</strong>
     <span id="velocity">0.00 m/s</span>
   </div>
+
   <div class="metric">
     <strong>Acceleration</strong>
     <span id="acceleration">0.00 m/s²</span>
   </div>
 </div>
 
-<div class="track-box">
-  <svg viewBox="0 0 1200 320"
-       role="img"
-       aria-label="Rocket moving along a horizontal track">
+<div class="track-box" id="trackBox">
 
-    <line x1="65" y1="235"
-          x2="1135" y2="235"
+  <svg viewBox="0 0 1200 350"
+       preserveAspectRatio="none"
+       role="img"
+       aria-label="Horizontal position track">
+
+    <line x1="75" y1="255"
+          x2="1125" y2="255"
           stroke="#526b80"
-          stroke-width="6"/>
+          stroke-width="5"/>
 
     <g id="ticks"></g>
 
-    <!-- Rocket position and orientation -->
-    <g id="rocket" transform="translate(600 135)">
-      <g id="rocket-direction">
-        <text x="0"
-              y="30"
-              text-anchor="middle"
-              font-size="110"
-              transform="rotate(45 0 0)">🚀</text>
-      </g>
-    </g>
+    <text x="75" y="303"
+          font-size="29"
+          fill="#425b70">−10 m</text>
 
-    <text x="65" y="288"
-          font-size="28" fill="#425b70">−10 m</text>
-
-    <text x="600" y="288"
+    <text x="600" y="303"
           text-anchor="middle"
-          font-size="28" fill="#425b70">0 m</text>
+          font-size="29"
+          fill="#425b70">0 m</text>
 
-    <text x="1135" y="288"
+    <text x="1125" y="303"
           text-anchor="end"
-          font-size="28" fill="#425b70">+10 m</text>
+          font-size="29"
+          fill="#425b70">+10 m</text>
 
-    <text x="600" y="316"
+    <text x="600" y="337"
           text-anchor="middle"
-          font-size="25"
+          font-size="27"
           fill="#425b70">
       Position along the track
     </text>
   </svg>
+
+  <!-- Same rocket emoji as the JP001 home page -->
+  <div class="rocket" id="rocket">
+    <span class="rocket-symbol right"
+          id="rocketSymbol">🚀</span>
+  </div>
+
 </div>
 
 <div class="status">
@@ -314,23 +380,25 @@ button.active {
 </div>
 
 <div class="graphs">
+
   <section class="graph">
     <h2>Position vs. time</h2>
-    <svg id="gx" viewBox="0 0 600 520"
+    <svg id="gx" viewBox="0 0 650 550"
          aria-label="Position versus time graph"></svg>
   </section>
 
   <section class="graph">
     <h2>Velocity vs. time</h2>
-    <svg id="gv" viewBox="0 0 600 520"
+    <svg id="gv" viewBox="0 0 650 550"
          aria-label="Velocity versus time graph"></svg>
   </section>
 
   <section class="graph">
     <h2>Acceleration vs. time</h2>
-    <svg id="ga" viewBox="0 0 600 520"
+    <svg id="ga" viewBox="0 0 650 550"
          aria-label="Acceleration versus time graph"></svg>
   </section>
+
 </div>
 
 <p class="footer">
@@ -348,49 +416,56 @@ button.active {
   const $ = id => document.getElementById(id);
   const NS = "http://www.w3.org/2000/svg";
 
+  const LIMIT = 10;
+  const STEP = 0.02;
+
   let x = 0;
   let v = 0;
   let a = 0;
   let t = 0;
+
   let playing = false;
   let ended = false;
   let last = null;
   let accumulator = 0;
 
-  // 1 = facing right, -1 = facing left.
-  // Direction is determined by velocity, not acceleration.
+  // Rocket faces the direction of velocity.
   let facing = 1;
 
-  let samples = [{t:0,x:0,v:0,a:0}];
+  let samples = [
+    {t:0,x:0,v:0,a:0}
+  ];
 
   function svgElement(tag, attributes, parent) {
-    const element = document.createElementNS(NS, tag);
+    const element = document.createElementNS(NS,tag);
 
-    for (const [key,value] of Object.entries(attributes)) {
+    for(const [key,value] of Object.entries(attributes)) {
       element.setAttribute(key,value);
     }
 
     if(parent) parent.appendChild(element);
+
     return element;
   }
 
-  // Track tick marks
+  /* Track ticks */
+
   for(let i=-10;i<=10;i++) {
-    const xx = 600+i*53.5;
+    const xx = 600+i*52.5;
 
     svgElement("line",{
       x1:xx,
-      y1:224,
+      y1:244,
       x2:xx,
-      y2:i%5===0?250:242,
+      y2:i%5===0?273:263,
       stroke:"#8296a6",
       "stroke-width":i%5===0?3:1.5
     },$("ticks"));
   }
 
   function record() {
-    const p = {t,x,v,a};
-    const previous = samples[samples.length-1];
+    const p={t,x,v,a};
+    const previous=samples[samples.length-1];
 
     if(previous && Math.abs(previous.t-t)<1e-9) {
       samples[samples.length-1]=p;
@@ -436,11 +511,14 @@ button.active {
     v=0;
     a=0;
     t=0;
-    facing=1;
+
     playing=false;
     ended=false;
+    facing=1;
+
     last=null;
     accumulator=0;
+
     samples=[{t:0,x:0,v:0,a:0}];
 
     setAcceleration(0);
@@ -451,10 +529,10 @@ button.active {
     const svg=$(id);
     svg.replaceChildren();
 
-    const L=82;
-    const R=575;
-    const T=62;
-    const B=448;
+    const L=90;
+    const R=620;
+    const T=65;
+    const B=475;
 
     const W=R-L;
     const H=B-T;
@@ -462,7 +540,7 @@ button.active {
     const startT=Math.max(0,t-20);
     const endT=startT+20;
 
-    function label(x,y,value,size=22,anchor="middle") {
+    function label(x,y,value,size=24,anchor="middle") {
       const element=svgElement("text",{
         x,y,
         "font-size":size,
@@ -477,45 +555,75 @@ button.active {
       const yy=T+j*H/4;
 
       svgElement("line",{
-        x1:L,y1:yy,x2:R,y2:yy,
+        x1:L,y1:yy,
+        x2:R,y2:yy,
         class:"gridline"
       },svg);
 
-      label(L-14,yy+7,
+      label(
+        L-15,
+        yy+8,
         (max-(max-min)*j/4).toFixed(1),
-        20,"end");
+        22,
+        "end"
+      );
     }
 
     for(let j=0;j<=4;j++) {
       const xx=L+j*W/4;
 
       svgElement("line",{
-        x1:xx,y1:T,x2:xx,y2:B,
+        x1:xx,y1:T,
+        x2:xx,y2:B,
         class:"gridline"
       },svg);
 
-      label(xx,B+32,
+      label(
+        xx,
+        B+35,
         (startT+j*5).toFixed(startT===0?0:1),
-        20);
+        22
+      );
     }
 
     svgElement("line",{
-      x1:L,y1:T,x2:L,y2:B,class:"axis"
+      x1:L,y1:T,
+      x2:L,y2:B,
+      class:"axis"
     },svg);
 
     svgElement("line",{
-      x1:L,y1:B,x2:R,y2:B,class:"axis"
+      x1:L,y1:B,
+      x2:R,y2:B,
+      class:"axis"
     },svg);
 
-    label((L+R)/2,34,title,24);
-    label((L+R)/2,510,"Time (s)",23);
+    label((L+R)/2,34,title,27);
+    label((L+R)/2,540,"Time (s)",25);
 
     const px=z=>L+(z-startT)/20*W;
     const py=z=>T+(max-z)/(max-min)*H;
 
+    // Include the point at the left edge of a
+    // scrolling graph by interpolating the previous segment.
     const points=samples.filter(p=>
       p.t>=startT && p.t<=endT
     );
+
+    const before=[...samples].reverse()
+      .find(p=>p.t<startT);
+
+    if(before && points.length) {
+      const after=points[0];
+      const fraction=(startT-before.t)/(after.t-before.t);
+
+      points.unshift({
+        t:startT,
+        x:before.x+(after.x-before.x)*fraction,
+        v:before.v+(after.v-before.v)*fraction,
+        a:before.a
+      });
+    }
 
     if(points.length) {
       const d=points.map((p,i)=>{
@@ -549,23 +657,21 @@ button.active {
     $("velocity").textContent=v.toFixed(2)+" m/s";
     $("acceleration").textContent=a.toFixed(2)+" m/s²";
 
-    // Move rocket according to position.
-    $("rocket").setAttribute(
-      "transform",
-      "translate("+(600+x*53.5)+" 135)"
-    );
+    /*
+      The SVG track extends from 75 to 1125
+      in a viewBox of 1200.
+      Position maps to 6.25% through 93.75%.
+    */
+    const percent=50+(x/LIMIT)*43.75;
 
-    // Face the direction of velocity.
-    // Opposing acceleration slows the rocket but does not
-    // turn it until the velocity actually reverses.
+    $("rocket").style.left=percent+"%";
+
+    // Orientation follows velocity, not acceleration.
     if(v>0.0001) facing=1;
     else if(v< -0.0001) facing=-1;
 
-    // Mirror the horizontal rocket when moving left.
-    $("rocket-direction").setAttribute(
-      "transform",
-      facing===1 ? "scale(1 1)" : "scale(-1 1)"
-    );
+    $("rocketSymbol").className=
+      "rocket-symbol "+(facing===1?"right":"left");
 
     graph("gx","x",-10,10,"#016895","Position (m)");
     graph("gv","v",-10,10,"#276749","Velocity (m/s)");
@@ -581,33 +687,36 @@ button.active {
     if(playing&&!ended) {
       accumulator+=dt;
 
-      const h=0.02;
       let steps=0;
 
-      while(accumulator>=h&&steps++<5) {
-        const nextX=x+v*h+0.5*a*h*h;
-        const nextV=v+a*h;
+      while(accumulator>=STEP && steps++<5) {
+        const nextX=x+v*STEP+0.5*a*STEP*STEP;
+        const nextV=v+a*STEP;
 
-        if(nextX>=10||nextX<=-10) {
-          x=Math.max(-10,Math.min(10,nextX));
+        if(nextX>=LIMIT || nextX<=-LIMIT) {
+          x=Math.max(-LIMIT,Math.min(LIMIT,nextX));
           v=0;
           a=0;
+
           playing=false;
           ended=true;
-          accumulator=0;
 
           $("mode").textContent=
-            "Rocket reached the end of the track. Reset to start again.";
+            "Rocket reached the end of the track. Reset to begin again.";
         } else {
           x=nextX;
           v=nextV;
         }
 
-        t+=h;
+        t+=STEP;
         record();
-        accumulator-=h;
 
-        if(ended) break;
+        accumulator-=STEP;
+
+        if(ended) {
+          accumulator=0;
+          break;
+        }
       }
 
       render();
@@ -619,6 +728,7 @@ button.active {
   $("start").onclick=start;
   $("pause").onclick=pause;
   $("reset").onclick=reset;
+
   $("left").onclick=()=>setAcceleration(-2);
   $("coast").onclick=()=>setAcceleration(0);
   $("right").onclick=()=>setAcceleration(2);
@@ -632,7 +742,10 @@ button.active {
       if(e.code==="ArrowLeft") setAcceleration(-2);
       if(e.code==="ArrowRight") setAcceleration(2);
       if(e.code==="ArrowDown") setAcceleration(0);
-      if(e.code==="Space") playing?pause():start();
+
+      if(e.code==="Space") {
+        playing?pause():start();
+      }
     }
   });
 
@@ -641,5 +754,6 @@ button.active {
 
 })();
 </script>
+
 </body>
 </html>
