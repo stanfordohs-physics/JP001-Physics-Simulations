@@ -169,16 +169,25 @@ button.active {
   transform-origin: center;
 }
 
+/*
+  Right-facing rocket:
+  Rotate the diagonal emoji 45 degrees clockwise.
+*/
 .rocket-symbol.right {
   transform: rotate(45deg);
 }
 
 /*
-  Mirror the already-horizontal rocket.
-  Both directions remain upright.
+  Left-facing rocket:
+  Rotate the emoji horizontally first, then mirror
+  across the vertical axis.
+
+  CSS applies transforms from right to left.
+  This produces a true horizontal reversal
+  without turning the rocket upside down.
 */
 .rocket-symbol.left {
-  transform: rotate(45deg) scaleY(-1);
+  transform: scaleX(-1) rotate(45deg);
 }
 
 .status {
@@ -283,8 +292,13 @@ button.active {
 </header>
 
 <div class="instructions">
-  Use the left and right arrow keys to accelerate the rocket.
-  Turn acceleration off to observe motion at constant velocity.
+  <strong>Keyboard controls:</strong>
+  Press <strong>←</strong> to accelerate left,
+  <strong>→</strong> to accelerate right,
+  and <strong>↓</strong> to turn acceleration off.
+  Press <strong>Space</strong> to start or pause.
+  When acceleration is off, the rocket continues
+  moving at constant velocity.
   Watch how the three graphs change together.
   <strong>Positive is to the right.</strong>
 </div>
@@ -644,6 +658,11 @@ button.active {
     const percent=50+(x/LIMIT)*43.75;
     $("rocket").style.left=percent+"%";
 
+    /*
+      Facing direction depends on velocity.
+      The rocket only reverses once velocity
+      changes sign, not when acceleration changes.
+    */
     if(v>0.0001) facing=1;
     else if(v< -0.0001) facing=-1;
 
