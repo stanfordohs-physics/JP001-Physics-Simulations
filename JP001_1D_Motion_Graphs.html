@@ -1,14 +1,488 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>JP001 | One-Dimensional Motion Graphs</title><style>
-:root{font-family:system-ui,-apple-system,Arial,sans-serif;color:#383f46;background:#fff}*{box-sizing:border-box}body{margin:0 auto;max-width:1100px;padding:20px}header{border-bottom:3px solid #8c1515;text-align:center;margin-bottom:18px}h1{color:#8c1515;font-size:1.65rem;margin:6px}header p{color:#626b72;margin:8px 0 16px}.intro{background:#eef4f8;border-left:4px solid #016895;border-radius:10px;padding:12px 16px;margin-bottom:16px}.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}.controls button{border:1px solid #a9b8c5;background:#fff;padding:10px 16px;border-radius:9px;font-size:1rem;cursor:pointer}.controls button:focus-visible{outline:3px solid #016895}.controls button.primary{background:#016895;color:white}.readout{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}.metric{flex:1;min-width:135px;background:#f0ecf8;padding:12px;border-radius:10px}.metric b{display:block;color:#65458b}.track{border:1px solid #d5dce1;border-radius:12px;background:linear-gradient(#f7fbff,#e9f2f8);overflow:hidden}.track svg{display:block;width:100%;height:auto}.graphs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:15px}.panel{border:1px solid #d5dce1;border-radius:12px;overflow:hidden}.panel h2{margin:0;padding:10px 12px;font-size:1rem;background:#e7f2e9;color:#276749}.panel svg{width:100%;height:auto;display:block}.hint{font-size:.9rem;color:#59636b}.accel{background:#fff2da;border-left:4px solid #a66b19;padding:12px;border-radius:10px;margin-top:14px}kbd{border:1px solid #bbb;border-radius:4px;padding:1px 5px;background:#fff}@media(max-width:700px){.graphs{grid-template-columns:1fr}body{padding:12px}}
-</style></head><body><header><h1>One-Dimensional Motion Explorer</h1><p>JP001 Inquiry Based Physics · Observe • Predict • Explain</p></header><div class="intro">Use the controls to change the rocket's acceleration. Watch how the motion and three graphs change together. Positive is to the right.</div>
-<div class="controls"><button id="play" class="primary">▶ Start</button><button id="pause">⏸ Pause</button><button id="reset">↺ Reset</button><button id="left">◀ Accelerate left</button><button id="coast">No acceleration</button><button id="right">Accelerate right ▶</button></div>
-<div class="readout"><div class="metric"><b>Time</b><span id="t">0.00 s</span></div><div class="metric"><b>Position</b><span id="x">0.00 m</span></div><div class="metric"><b>Velocity</b><span id="v">0.00 m/s</span></div><div class="metric"><b>Acceleration</b><span id="a">0.00 m/s²</span></div></div>
-<div class="track"><svg viewBox="0 0 900 180" role="img" aria-label="Rocket moving horizontally along a numbered position axis"><defs><pattern id="ticks" width="45" height="14" patternUnits="userSpaceOnUse"><path d="M0 0V12" stroke="#8c9ca6"/></pattern></defs><path d="M30 122H870" stroke="#657b8b" stroke-width="2"/><path d="M30 122H870" stroke="url(#ticks)" stroke-width="14"/><g id="rocket" transform="translate(450 78)"><path d="M-28 0L-12 -15L18 -15L36 0L18 15L-12 15Z" fill="#8c1515" stroke="#5c0d0d" stroke-width="2"/><circle cx="8" cy="0" r="8" fill="#a9d7ee" stroke="#fff" stroke-width="2"/><path id="flame" d="M-28 -8L-46 0L-28 8Z" fill="#f5a623"/></g><text x="30" y="151" fill="#536777">−10 m</text><text x="450" y="151" text-anchor="middle" fill="#536777">0 m</text><text x="870" y="151" text-anchor="end" fill="#536777">+10 m</text><text x="450" y="174" text-anchor="middle" fill="#536777">Position along the track</text></svg></div>
-<div class="accel"><strong>Acceleration:</strong> <span id="mode">0 m/s² (coasting)</span>. Keyboard: <kbd>←</kbd> accelerate left, <kbd>→</kbd> accelerate right, <kbd>↓</kbd> coast, <kbd>Space</kbd> play/pause.</div>
-<div class="graphs"><div class="panel"><h2>Position vs. time</h2><svg id="gx" viewBox="0 0 320 250" role="img" aria-label="Position versus time graph"></svg></div><div class="panel"><h2>Velocity vs. time</h2><svg id="gv" viewBox="0 0 320 250" role="img" aria-label="Velocity versus time graph"></svg></div><div class="panel"><h2>Acceleration vs. time</h2><svg id="ga" viewBox="0 0 320 250" role="img" aria-label="Acceleration versus time graph"></svg></div></div><p class="hint">Graph windows show the latest 20 seconds. If the rocket reaches the edge of the track, it stops there. Reset to begin a new run.</p>
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JP001 | One-Dimensional Motion Explorer</title>
+<style>
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #273747;
+  background: #fff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+main {
+  width: min(98vw, 1900px);
+  margin: auto;
+  padding: 12px 16px 28px;
+}
+header {
+  border-bottom: 4px solid #8c1515;
+  padding: 5px 0 12px;
+  margin-bottom: 16px;
+}
+h1 {
+  font-size: clamp(26px, 2.5vw, 42px);
+  color: #8c1515;
+  margin: 0;
+}
+header p {
+  font-size: clamp(16px, 1.3vw, 22px);
+  margin: 5px 0 0;
+  color: #526171;
+}
+.note {
+  background: #edf4f9;
+  border-left: 5px solid #016895;
+  padding: 13px 18px;
+  border-radius: 10px;
+  font-size: clamp(16px, 1.25vw, 21px);
+  margin-bottom: 14px;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 15px 0;
+}
+button {
+  cursor: pointer;
+  font-size: clamp(17px, 1.25vw, 21px);
+  font-weight: bold;
+  padding: 13px 18px;
+  border: 2px solid #b2c1ce;
+  border-radius: 10px;
+  background: #fff;
+  color: #23384b;
+  min-height: 54px;
+}
+button:hover { background: #edf4f9; }
+button:focus-visible { outline: 4px solid #d69f35; }
+button.primary {
+  background: #016895;
+  color: white;
+  border-color: #016895;
+}
+button.active {
+  background: #e2f0e6;
+  border-color: #276749;
+  color: #205b3a;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.metric {
+  background: #f0ecf8;
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+.metric strong {
+  display: block;
+  color: #65458b;
+  font-size: clamp(16px, 1.3vw, 22px);
+}
+.metric span {
+  font-size: clamp(20px, 1.75vw, 30px);
+  font-variant-numeric: tabular-nums;
+}
+.trackBox {
+  border: 2px solid #cad7e0;
+  background: linear-gradient(#f5faff,#e7f2f9);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+.trackBox svg {
+  display: block;
+  width: 100%;
+  height: clamp(220px, 24vw, 360px);
+}
+.status {
+  background: #fff0d7;
+  border-left: 5px solid #a66b19;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 14px 0;
+  font-size: clamp(16px, 1.2vw, 21px);
+}
+.graphs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 14px;
+}
+.graph {
+  border: 2px solid #cfdadf;
+  border-radius: 13px;
+  overflow: hidden;
+  background: #fff;
+  min-width: 0;
+}
+.graph h2 {
+  font-size: clamp(18px, 1.45vw, 25px);
+  color: #276749;
+  background: #e7f2e9;
+  margin: 0;
+  padding: 12px 15px;
+}
+.graph svg {
+  display: block;
+  width: 100%;
+  height: clamp(320px, 31vw, 490px);
+}
+.foot {
+  font-size: clamp(15px, 1.1vw, 19px);
+  color: #526171;
+  margin-top: 12px;
+}
+svg text { font-family: Arial, Helvetica, sans-serif; }
+.gridline { stroke: #e1e8ed; stroke-width: 1; }
+.axis { stroke: #536a7b; stroke-width: 2; }
+.plot {
+  fill: none;
+  stroke-width: 4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+@media(max-width:1000px) {
+  .graphs { grid-template-columns: 1fr; }
+  .graph svg { height: 380px; }
+  .metrics { grid-template-columns: repeat(2,1fr); }
+}
+@media(max-width:550px) {
+  main { padding: 8px; }
+  .metrics { gap: 7px; }
+  .metric { padding: 9px; }
+  .controls button { flex: 1 1 45%; }
+  .trackBox svg { height: 220px; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>One-Dimensional Motion Explorer</h1>
+  <p>JP001 Inquiry Based Physics · Observe · Predict · Explain</p>
+</header>
+
+<div class="note">
+  Change the rocket's acceleration and watch how its motion
+  and all three graphs change together.
+  <strong>Positive is to the right.</strong>
+</div>
+
+<div class="controls">
+  <button class="primary" id="start">▶ Start</button>
+  <button id="pause">Ⅱ Pause</button>
+  <button id="reset">↺ Reset</button>
+  <button id="left">◀ Accelerate left</button>
+  <button id="coast" class="active">No acceleration</button>
+  <button id="right">Accelerate right ▶</button>
+</div>
+
+<div class="metrics">
+  <div class="metric">
+    <strong>Time</strong><span id="time">0.00 s</span>
+  </div>
+  <div class="metric">
+    <strong>Position</strong><span id="position">0.00 m</span>
+  </div>
+  <div class="metric">
+    <strong>Velocity</strong><span id="velocity">0.00 m/s</span>
+  </div>
+  <div class="metric">
+    <strong>Acceleration</strong><span id="acceleration">0.00 m/s²</span>
+  </div>
+</div>
+
+<div class="trackBox">
+<svg id="track" viewBox="0 0 1200 300"
+     role="img"
+     aria-label="Rocket on a track from negative ten to positive ten meters">
+  <line x1="48" y1="213" x2="1152" y2="213"
+        stroke="#526b80" stroke-width="5"/>
+  <g id="ticks"></g>
+  <g id="rocket" transform="translate(600 120)">
+    <polygon points="-44,0 -18,-24 23,-24 50,0 23,24 -18,24"
+             fill="#8c1515" stroke="#5c0a0a" stroke-width="4"/>
+    <circle cx="5" cy="0" r="12"
+            fill="#b7e4f2" stroke="white" stroke-width="4"/>
+    <polygon id="flame" points="-44,-9 -70,0 -44,9"
+             fill="#e5a146"/>
+  </g>
+  <text x="48" y="264" font-size="25" fill="#425b70">−10 m</text>
+  <text x="600" y="264" text-anchor="middle"
+        font-size="25" fill="#425b70">0 m</text>
+  <text x="1152" y="264" text-anchor="end"
+        font-size="25" fill="#425b70">+10 m</text>
+  <text x="600" y="294" text-anchor="middle"
+        font-size="23" fill="#425b70">Position along the track</text>
+</svg>
+</div>
+
+<div class="status">
+  <strong id="mode">Acceleration: 0 m/s² (coasting).</strong>
+  Keyboard: ← accelerate left, → accelerate right,
+  ↓ coast, Space start/pause.
+</div>
+
+<div class="graphs">
+  <section class="graph">
+    <h2>Position vs. time</h2>
+    <svg id="gx" viewBox="0 0 500 430"
+         aria-label="Position versus time graph"></svg>
+  </section>
+  <section class="graph">
+    <h2>Velocity vs. time</h2>
+    <svg id="gv" viewBox="0 0 500 430"
+         aria-label="Velocity versus time graph"></svg>
+  </section>
+  <section class="graph">
+    <h2>Acceleration vs. time</h2>
+    <svg id="ga" viewBox="0 0 500 430"
+         aria-label="Acceleration versus time graph"></svg>
+  </section>
+</div>
+
+<p class="foot">
+  Graphs show the most recent 20 seconds.
+  The rocket stops when it reaches either end of the track.
+  Select Reset to begin a new run.
+</p>
+
+</main>
+
 <script>
-(()=>{'use strict';let x=0,v=0,a=0,t=0,playing=false,last=0,samples=[{t:0,x:0,v:0,a:0}],lastSample=0;const $=id=>document.getElementById(id);const fmt=(n,u)=>`${n.toFixed(2)} ${u}`;function setA(n){a=n;$('mode').textContent=`${n>0?'+':''}${n} m/s² ${n===0?'(coasting)':n>0?'(right)':'(left)'}`;update();}function reset(){playing=false;x=v=a=t=lastSample=0;samples=[{t:0,x:0,v:0,a:0}];$('mode').textContent='0 m/s² (coasting)';update();}function update(){ $('t').textContent=fmt(t,'s');$('x').textContent=fmt(x,'m');$('v').textContent=fmt(v,'m/s');$('a').textContent=fmt(a,'m/s²');$('rocket').setAttribute('transform',`translate(${450+42*x} 78)`);$('flame').setAttribute('opacity',a===0?'0.15':'1');draw('gx','x',-10,10,'Position (m)','#016895');draw('gv','v',-10,10,'Velocity (m/s)','#276749');draw('ga','a',-3,3,'Acceleration (m/s²)','#8c1515');}
-function draw(id,key,min,max,label,color){let svg=$(id),ns='http://www.w3.org/2000/svg';while(svg.firstChild)svg.removeChild(svg.firstChild);function el(tag,attrs,text){let n=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));if(text!==undefined)n.textContent=text;svg.appendChild(n);return n;}const L=47,R=307,T=18,B=210;for(let i=0;i<=4;i++){let yy=T+i*(B-T)/4;el('line',{x1:L,y1:yy,x2:R,y2:yy,stroke:'#e3e8ec'});el('text',{x:L-6,y:yy+4,'text-anchor':'end','font-size':11,fill:'#52616b'},(max-(max-min)*i/4).toFixed(1));}let start=Math.max(0,t-20),end=start+20;for(let i=0;i<=4;i++){let xx=L+i*(R-L)/4;el('line',{x1:xx,y1:T,x2:xx,y2:B,stroke:'#edf0f3'});el('text',{x:xx,y:B+16,'text-anchor':'middle','font-size':11,fill:'#52616b'},(start+5*i).toFixed(0));}el('line',{x1:L,y1:B,x2:R,y2:B,stroke:'#647582'});el('line',{x1:L,y1:T,x2:L,y2:B,stroke:'#647582'});let visible=samples.filter(s=>s.t>=start);visible.push({t,x,v,a});let pts=visible.map(s=>`${L+(s.t-start)/20*(R-L)},${T+(max-Math.max(min,Math.min(max,s[key])))/(max-min)*(B-T)}`).join(' ');if(pts)el('polyline',{points:pts,fill:'none',stroke:color,'stroke-width':2.7,'stroke-linejoin':'round'});el('text',{x:(L+R)/2,y:245,'text-anchor':'middle','font-size':12,fill:'#52616b'},'Time (s)');el('text',{x:L+5,y:12,'font-size':12,fill:color},label);}
-function tick(now){if(!last)last=now;let dt=Math.min((now-last)/1000,.05);last=now;if(playing){let oldv=v;v+=a*dt;x+=(oldv+v)*dt/2;t+=dt;if(x>10||x< -10){x=Math.max(-10,Math.min(10,x));v=0;a=0;playing=false;$('mode').textContent='0 m/s² (track boundary reached)';}if(t-lastSample>=.07){samples.push({t,x,v,a});lastSample=t;if(samples.length>4000)samples.shift();}update();}requestAnimationFrame(tick);} $('play').onclick=()=>{playing=true;};$('pause').onclick=()=>{playing=false;};$('reset').onclick=reset;$('left').onclick=()=>setA(-2);$('right').onclick=()=>setA(2);$('coast').onclick=()=>setA(0);window.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowDown','Space'].includes(e.code)){e.preventDefault();if(e.code==='ArrowLeft')setA(-2);if(e.code==='ArrowRight')setA(2);if(e.code==='ArrowDown')setA(0);if(e.code==='Space')playing=!playing;}});update();requestAnimationFrame(tick);
+(() => {
+'use strict';
+
+const $ = id => document.getElementById(id);
+const ns = 'http://www.w3.org/2000/svg';
+
+let x = 0, v = 0, a = 0, t = 0;
+let playing = false, ended = false;
+let last = null, accum = 0;
+let samples = [{t:0,x:0,v:0,a:0}];
+
+function el(tag,attrs={},parent) {
+  let n = document.createElementNS(ns,tag);
+  for(let [k,val] of Object.entries(attrs))
+    n.setAttribute(k,val);
+  if(parent) parent.appendChild(n);
+  return n;
+}
+
+const ticks = $('ticks');
+for(let i=-10;i<=10;i++) {
+  let xx=600+i*55.2;
+  el('line',{
+    x1:xx,y1:204,x2:xx,
+    y2:i%5===0?228:219,
+    stroke:'#8296a6',
+    'stroke-width':i%5===0?3:1.5
+  },ticks);
+}
+
+function setAccel(n) {
+  if(ended) return;
+  a=n;
+  ['left','coast','right'].forEach(id =>
+    $(id).classList.toggle('active',
+      (id==='left'&&n<0)||
+      (id==='coast'&&n===0)||
+      (id==='right'&&n>0)
+    )
+  );
+  $('mode').textContent =
+    `Acceleration: ${n.toFixed(0)} m/s²`+
+    (n===0?' (coasting)':'')+'.';
+  record();
+  render();
+}
+
+function record() {
+  let p={t,x,v,a};
+  let q=samples[samples.length-1];
+  if(q && Math.abs(q.t-t)<1e-8)
+    samples[samples.length-1]=p;
+  else samples.push(p);
+}
+
+function reset() {
+  x=0;v=0;a=0;t=0;
+  playing=false;ended=false;
+  last=null;accum=0;
+  samples=[{t,x,v,a}];
+  setAccel(0);
+  render();
+}
+
+function start() {
+  if(ended) return;
+  playing=true;
+  last=null;
+}
+
+function pause() {
+  playing=false;
+  last=null;
+}
+
+function graph(id,key,min,max,color,title) {
+  const svg=$(id);
+  svg.replaceChildren();
+
+  let L=66,R=477,T=48,B=365;
+  let W=R-L,H=B-T;
+  let startT=Math.max(0,t-20),endT=startT+20;
+
+  const txt=(x,y,s,size=17,anchor='middle',fill='#3e5264')=>{
+    let e=el('text',{
+      x,y,'font-size':size,'text-anchor':anchor,fill
+    },svg);
+    e.textContent=s;
+  };
+
+  for(let j=0;j<=4;j++) {
+    let yy=T+j*H/4;
+    el('line',{
+      x1:L,y1:yy,x2:R,y2:yy,class:'gridline'
+    },svg);
+    txt(L-12,yy+6,(max-(max-min)*j/4).toFixed(1),16,'end');
+  }
+
+  for(let j=0;j<=4;j++) {
+    let xx=L+j*W/4;
+    el('line',{
+      x1:xx,y1:T,x2:xx,y2:B,class:'gridline'
+    },svg);
+    txt(xx,B+25,
+      (startT+j*5).toFixed(startT===0?0:1),16);
+  }
+
+  el('line',{
+    x1:L,y1:T,x2:L,y2:B,class:'axis'
+  },svg);
+  el('line',{
+    x1:L,y1:B,x2:R,y2:B,class:'axis'
+  },svg);
+
+  txt((L+R)/2,25,title,19);
+  txt((L+R)/2,412,'Time (s)',18);
+
+  const xx=z=>L+(z-startT)/20*W;
+  const yy=z=>T+(max-z)/(max-min)*H;
+
+  let pts=samples.filter(p=>
+    p.t>=startT-0.05 && p.t<=endT+0.05
+  );
+
+  if(pts.length && pts[0].t>startT) {
+    let earlier=[...samples].reverse()
+      .find(p=>p.t<startT);
+    if(earlier)
+      pts.unshift({...earlier,t:startT});
+  }
+
+  if(pts.length) {
+    let d=pts.map((p,i)=>
+      (i?'L':'M')+
+      xx(p.t).toFixed(2)+' '+
+      yy(Math.max(min,Math.min(max,p[key]))).toFixed(2)
+    ).join(' ');
+
+    el('path',{d,class:'plot',stroke:color},svg);
+
+    let p=pts[pts.length-1];
+    el('circle',{
+      cx:xx(p.t),
+      cy:yy(Math.max(min,Math.min(max,p[key]))),
+      r:5,fill:color
+    },svg);
+  }
+}
+
+function render() {
+  $('time').textContent=t.toFixed(2)+' s';
+  $('position').textContent=x.toFixed(2)+' m';
+  $('velocity').textContent=v.toFixed(2)+' m/s';
+  $('acceleration').textContent=a.toFixed(2)+' m/s²';
+
+  $('rocket').setAttribute('transform',
+    `translate(${600+x*55.2} 120)`
+  );
+  $('flame').setAttribute('opacity',playing?1:.45);
+
+  graph('gx','x',-10,10,'#016895','Position (m)');
+  graph('gv','v',-10,10,'#276749','Velocity (m/s)');
+  graph('ga','a',-3,3,'#8c1515','Acceleration (m/s²)');
+}
+
+function tick(now) {
+  if(last===null) last=now;
+  let dt=Math.min((now-last)/1000,.05);
+  last=now;
+
+  if(playing&&!ended) {
+    accum+=dt;
+    const h=.02;
+    let steps=0;
+
+    while(accum>=h && steps++<5) {
+      let nextX=x+v*h+.5*a*h*h;
+      let nextV=v+a*h;
+
+      if(nextX>=10 || nextX<=-10) {
+        x=Math.max(-10,Math.min(10,nextX));
+        v=0;
+        a=0;
+        playing=false;
+        ended=true;
+        accum=0;
+        $('mode').textContent=
+          'Rocket reached the end of the track. Reset to start again.';
+      } else {
+        x=nextX;
+        v=nextV;
+      }
+
+      t+=h;
+      record();
+      accum-=h;
+      if(ended) break;
+    }
+    render();
+  }
+  requestAnimationFrame(tick);
+}
+
+$('start').onclick=start;
+$('pause').onclick=pause;
+$('reset').onclick=reset;
+$('left').onclick=()=>setAccel(-2);
+$('coast').onclick=()=>setAccel(0);
+$('right').onclick=()=>setAccel(2);
+
+document.addEventListener('keydown',e=>{
+  if(['ArrowLeft','ArrowRight','ArrowDown','Space']
+     .includes(e.code)) {
+    e.preventDefault();
+    if(e.code==='ArrowLeft') setAccel(-2);
+    if(e.code==='ArrowRight') setAccel(2);
+    if(e.code==='ArrowDown') setAccel(0);
+    if(e.code==='Space') playing?pause():start();
+  }
+});
+
+render();
+requestAnimationFrame(tick);
 })();
-</script></body></html>
+</script>
+</body>
+</html>
+
