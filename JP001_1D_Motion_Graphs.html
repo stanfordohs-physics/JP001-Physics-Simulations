@@ -11,7 +11,7 @@
   --blue: #016895;
   --green: #276749;
   --purple: #65458b;
-  --mustard: #e5a000;
+  --mustard: #f2a900;
   --ink: #293c4c;
 }
 
@@ -173,8 +173,12 @@ button.active {
   transform: rotate(45deg);
 }
 
+/*
+  Mirror the already-horizontal rocket.
+  Both directions remain upright.
+*/
 .rocket-symbol.left {
-  transform: scaleX(-1) rotate(45deg);
+  transform: rotate(45deg) scaleY(-1);
 }
 
 .status {
@@ -205,21 +209,20 @@ button.active {
   padding: 14px 18px;
   margin: 0;
   font-size: clamp(22px, 1.6vw, 32px);
+  color: #ffffff;
 }
 
 .graph.position h2 {
-  background: #e6f2fa;
-  color: var(--blue);
+  background: #168ac4;
 }
 
 .graph.velocity h2 {
-  background: #e7f2e9;
-  color: var(--green);
+  background: #32965a;
 }
 
 .graph.acceleration h2 {
-  background: #fff1c8;
-  color: #846116;
+  background: #f2a900;
+  color: #382900;
 }
 
 .graph svg {
@@ -649,7 +652,7 @@ button.active {
 
     graph("gx","x",-10,10,"#016895","Position (m)");
     graph("gv","v",-10,10,"#276749","Velocity (m/s)");
-    graph("ga","a",-3,3,"#e5a000","Acceleration (m/s²)");
+    graph("ga","a",-3,3,"#f2a900","Acceleration (m/s²)");
   }
 
   function tick(now) {
